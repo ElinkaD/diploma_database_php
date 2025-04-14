@@ -30,3 +30,5 @@ function showTable($pdo, $tableName)
 showTable($pdo, 'students');
 showTable($pdo, 'student_statuses');
 showTable($pdo, 'groups');
+showTable($pdo, 'flows');
+showTable($pdo, 'students_in_flows');

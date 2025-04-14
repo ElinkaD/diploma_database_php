@@ -1,5 +1,7 @@
 <?php 
 require 'db_connect.php';
+require_once __DIR__ . '/helpers/SemesterAndYearHelper.php';
+
 
 function insertGroup($pdo, $groupNumber, $course)
 {
@@ -21,30 +23,7 @@ function insertStudent($pdo, $id_isu, $fio, $citizenship, $comment)
     ]);
 }
 
-// вычисление семестра и года по флагу
-function getSemesterAndYear($flag) {
-    $month = (int)date('n'); 
-    $year = (int)date('Y');
-    $currentSemester = ($month >= 1 && $month <= 6) ? 'весна' : 'осень'; 
-    
-    if ($flag === -1) { // previous semester
-        if ($currentSemester == 'весна') {
-            return ['semester' => 'осень', 'year' => $year - 1];
-        } else {
-            return ['semester' => 'весна', 'year' => $year];
-        }
-    } elseif ($flag === 1) { // next semester
-        if ($currentSemester === 'осень') {
-            return ['semester' => 'весна', 'year' => $year + 1];
-        } else {
-            return ['semester' => 'осень', 'year' => $year];
-        }
-    }
-    // current semester (flag 0)
-    return ['semester' => $currentSemester, 'year' => $year];
-}
-
-function importCSV($pdo, $filename, $semester_flag) {
+function importportfolioCSV($pdo, $filename, $semester_flag) {
     $file = fopen($filename, 'r');
 
     if (!$file) {
@@ -52,7 +31,7 @@ function importCSV($pdo, $filename, $semester_flag) {
     }
 
     // получаем год и семестр
-    $semesterData = getSemesterAndYear($semester_flag);
+    $semesterData = SemesterAndYearHelper::getSemesterAndYear($semester_flag);
     $semester = $semesterData['semester'];
     $year = $semesterData['year'];
 
@@ -131,5 +110,5 @@ function importCSV($pdo, $filename, $semester_flag) {
 }
 
 $csvFile = '../import_tables_csv/Шаблон импорта - шаблон портфолио.csv';
-importCSV($pdo,  $csvFile, 0);
+importportfolioCSV($pdo,  $csvFile, 0);
 ?>
