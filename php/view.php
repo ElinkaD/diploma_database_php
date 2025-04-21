@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../api/db_connect.php';
+require_once __DIR__ . '/../function/db_connect.php';
 
 function showTable($pdo, $tableName)
 {
