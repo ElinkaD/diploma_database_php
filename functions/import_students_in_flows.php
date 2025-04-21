@@ -1,7 +1,7 @@
 <?php 
 require 'db_connect.php';
 
-function importflowsCSV($pdo, $filename) {
+function importStudentsInFlowsCSV($pdo, $filename) {
     $file = fopen($filename, 'r');
 
     if (!$file) {
@@ -13,7 +13,7 @@ function importflowsCSV($pdo, $filename) {
     while (($row = fgetcsv($file, 0, ",")) !== false) {
         $id_isu = (int)$row[0];
         $id_flow = (int)$row[1];
-        $name_flow = $row[2];
+        $name_flow = trim($row[2]);
 
         // echo $id_flow . ' ' . $name_flow;
         
@@ -36,5 +36,5 @@ function importflowsCSV($pdo, $filename) {
 }
 
 $csvFile = '../import_tables_csv/Шаблон импорта - шаблон студенты в потоке.csv';
-importflowsCSV($pdo,  $csvFile);
+importStudentsInFlowsCSV($pdo,  $csvFile);
 ?>

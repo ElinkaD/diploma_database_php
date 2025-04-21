@@ -2,7 +2,7 @@
 require 'db_connect.php';
 require_once __DIR__ . '/helpers/SemesterAndYearHelper.php';
 
-function importflowsCSV($pdo, $filename, $semester_flag) {
+function importFlowsCSV($pdo, $filename, $semester_flag) {
     $file = fopen($filename, 'r');
 
     if (!$file) {
@@ -17,7 +17,7 @@ function importflowsCSV($pdo, $filename, $semester_flag) {
     fgetcsv($file, 0, "\t");
 
     while (($row = fgetcsv($file, 0, ",")) !== false) {
-        $name_flow = $row[0];
+        $name_flow = trim($row[0]);
         $count_limit = (int)$row[1];
         $commentFlow = $row[2] ?? '';
         $id_rpd = (int)$row[3];
@@ -56,7 +56,7 @@ function importflowsCSV($pdo, $filename, $semester_flag) {
             
             // echo "Successfully imported: $id_isu - $fio\n";
         } catch (PDOException $e) {
-            echo "Error importing student $id_isu: " . $e->getMessage() . "\n";
+            echo "Error importing flow $name_flow: " . $e->getMessage() . "\n";
             continue;
         }
     }
@@ -66,5 +66,5 @@ function importflowsCSV($pdo, $filename, $semester_flag) {
 }
 
 $csvFile = '../import_tables_csv/Шаблон импорта - шаблон потоки.csv';
-importflowsCSV($pdo,  $csvFile, 0);
+importFlowsCSV($pdo,  $csvFile, 0);
 ?>
