@@ -1,21 +1,16 @@
 <?php
 require_once 'Importer.php';
-require_once __DIR__ . '/../helpers/SemesterAndYearHelper.php';
 
 class DebtsImporter extends SemesterImporter {
     public function import(): void {
         throw new Exception("Метод import() не используется. Используй importWithSemesterFlag().");
     }
 
-    public function importWithSemesterFlag(int $semester_flag): void {
+    public function importWithSemester(string $semester, int $year): void {
         $file = fopen($this->filename, 'r');
         if (!$file) {
             throw new Exception("Ошибка открытия файла");
         }
-
-        $semesterData = SemesterAndYearHelper::getSemesterAndYear($semester_flag);
-        $semester = $semesterData['semester'];
-        $year = $semesterData['year'];
 
         fgetcsv($file, 0, "\t");
 
@@ -34,8 +29,6 @@ class DebtsImporter extends SemesterImporter {
                 'реструкт' => 'реструктуризация'
             ];
 
-            $type_debt_form = $type_debt_map[$type_debt] ?? 'обычный';
-
             $type_control_map = [
                 'Экзамен' => 'Экзамен',
                 'Экзамён' => 'Экзамен',
@@ -51,8 +44,25 @@ class DebtsImporter extends SemesterImporter {
 
             $type_control_ass = $type_control_map[$type_control] ?? 'null';
 
+            if($type_debt == 'удалить'){
+                $stmt = $this->pdo->prepare("CALL delete_debt(:id_student, :name_disp, :number_from_start, :assessment_type)");
+                $stmt->execute([
+                    'id_student' => $id_isu,
+                    'name_disp' => $name_disp,
+                    'number_from_start' => $number_from_start,
+                    'assessment_type' => $type_control_ass,
+                ]);
+                continue;
+            }
+
+
+            $type_debt_form = $type_debt_map[$type_debt] ?? 'обычный';
+
             if (!in_array($type_control_ass, ['Экзамен', 'Зачет', 'Дифф. зачет', 'Курсовая работа', 'Курсовой проект'])) {
-                echo "❌ Недопустимый тип контроля: '$type_control_ass'\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "❌ Invalid control type '$type_control_ass' for student $id_isu (Flow: $name_disp)."
+                ];
                 continue;
             }
 
@@ -69,12 +79,27 @@ class DebtsImporter extends SemesterImporter {
                     'comment' => $comment
                 ]);
             } catch (PDOException $e) {
-                echo "Error importing student $id_isu: " . $e->getMessage() . "\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "Error importing student $id_isu: " . $e->getMessage()
+                ];
                 continue;
             }
         }
 
         fclose($file);
-        echo "Импорт долгов завершён!\n";
+        if (empty($response)) {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт debts завершён успешно!'
+            ];
+        } else {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт завершён с ошибками, проверьте сообщения выше.'
+            ];
+        }
+
+        echo json_encode($response);
     }
 }

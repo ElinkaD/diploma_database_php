@@ -23,3 +23,4 @@ class SemesterAndYearHelper {
         return ['semester' => $currentSemester, 'year' => $year];
     }
 }
+

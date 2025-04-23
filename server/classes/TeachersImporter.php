@@ -1,7 +1,7 @@
 <?php
 require_once 'Importer.php';
 
-class GroupTrackImporter extends Importer {
+class TeachersImporter extends Importer {
     public function import(): void {
         $file = fopen($this->filename, 'r');
         if (!$file) {
@@ -9,10 +9,14 @@ class GroupTrackImporter extends Importer {
         }
 
         fgetcsv($file, 0, "\t");
+        $response = [];
 
         while (($row = fgetcsv($file, 0, ",")) !== false) {
             if (empty($row[0]) || empty($row[1]) || empty($row[2]) || empty($row[3])) {
-                echo "Пропущена строка из-за отсутствия обязательных данных.\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => 'Пропущена строка из-за отсутствия обязательных данных'
+                ];
                 continue;
             }
     
@@ -33,12 +37,26 @@ class GroupTrackImporter extends Importer {
                 ]);
                 
             } catch (PDOException $e) {
-                echo "Error importing $fio: " . $e->getMessage() . "\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "Error importing $fio: " . $e->getMessage()
+                ];
                 continue;
             }
         }
 
         fclose($file);
-        echo "Импорт группы/трека завершён!\n";
+        if (empty($response)) {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт teachers завершён успешно!'
+            ];
+        } else {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт завершён с ошибками, проверьте сообщения выше.'
+            ];
+        }
+        echo json_encode($response);
     }
 }

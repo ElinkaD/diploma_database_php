@@ -33,3 +33,5 @@ showTable($pdo, 'groups');
 showTable($pdo, 'flows');
 showTable($pdo, 'students_in_flows');
 showTable($pdo, 'kpi');
+
+?>

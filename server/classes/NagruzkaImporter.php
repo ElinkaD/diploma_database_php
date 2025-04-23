@@ -1,27 +1,26 @@
 <?php
 require_once 'Importer.php';
-require_once __DIR__ . '/../helpers/SemesterAndYearHelper.php';
 
 class NagruzkaImporter extends SemesterImporter {
     public function import(): void {
         throw new Exception("Метод import() не используется. Используй importWithSemesterFlag().");
     }
 
-    public function importWithSemesterFlag(int $semester_flag): void {
+    public function importWithSemester(string $semester, int $year): void {
         $file = fopen($this->filename, 'r');
         if (!$file) {
             throw new Exception("Ошибка открытия файла");
         }
 
-        $semesterData = SemesterAndYearHelper::getSemesterAndYear($semester_flag);
-        $semester = $semesterData['semester'];
-        $year = $semesterData['year'];
-
         fgetcsv($file, 0, "\t");
+        $response = [];
 
         while (($row = fgetcsv($file, 0, ",")) !== false) {
             if (empty($row[0]) || empty($row[3])) {
-                echo "Пропущена строка из-за отсутствия обязательных данных (name_discipline, fio).\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => 'Пропущена строка из-за отсутствия обязательных данных ФИО или дисциплина'
+                ];
                 continue;
             }
     
@@ -61,6 +60,17 @@ class NagruzkaImporter extends SemesterImporter {
         }
 
         fclose($file);
-        echo "Импорт долгов завершён!\n";
+        if (empty($response)) {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт nagruzka завершён успешно!'
+            ];
+        } else {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт завершён с ошибками, проверьте сообщения выше.'
+            ];
+        }
+        echo json_encode($response);
     }
 }

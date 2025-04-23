@@ -1,24 +1,20 @@
 <?php
 require_once 'Importer.php';
-require_once __DIR__ . '/../helpers/SemesterAndYearHelper.php';
 
 class FlowsImporter extends SemesterImporter {
     public function import(): void {
         throw new Exception("Метод import() не используется. Используй importWithSemesterFlag().");
     }
 
-    public function importWithSemesterFlag(int $semester_flag): void {
+    public function importWithSemester(string $semester, int $year): void {
         $file = fopen($this->filename, 'r');
         if (!$file) {
             die("Ошибка открытия файла");
         }
     
-        // получаем год и семестр
-        $semesterData = SemesterAndYearHelper::getSemesterAndYear($semester_flag);
-        $semester = $semesterData['semester'];
-        $year = $semesterData['year'];
     
         fgetcsv($file, 0, "\t");
+        $response = [];
     
         while (($row = fgetcsv($file, 0, ",")) !== false) {
             $name_flow = trim($row[0]);
@@ -39,8 +35,11 @@ class FlowsImporter extends SemesterImporter {
             $type_task_form = $type_tasks_map[$type_task] ?? null;
             
             
-            if (!$type_tasks_map) {
-                echo "⚠️ Неизвестный вид занятий $name_flow: '$type_task'\n";
+            if (!$type_task_form) {
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "⚠️ Unknown task type for flow $name_flow: '$type_task'"
+                ];
                 continue;
             }
     
@@ -60,12 +59,26 @@ class FlowsImporter extends SemesterImporter {
                 
                 // echo "Successfully imported: $id_isu - $fio\n";
             } catch (PDOException $e) {
-                echo "Error importing flow $name_flow: " . $e->getMessage() . "\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "Error importing flow $name_flow: " . $e->getMessage()
+                ];
                 continue;
             }
         }
     
         fclose($file);
-        echo "Импорт завершен!";
+        if (empty($response)) {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт flows завершён успешно!'
+            ];
+        } else {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт завершён с ошибками, проверьте сообщения выше.'
+            ];
+        }
+        echo json_encode($response);
     }
 }    

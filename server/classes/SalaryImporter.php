@@ -1,27 +1,26 @@
 <?php
 require_once 'Importer.php';
-require_once __DIR__ . '/../helpers/SemesterAndYearHelper.php';
 
 class SalaryImporter extends SemesterImporter {
     public function import(): void {
         throw new Exception("Метод import() не используется. Используй importWithSemesterFlag().");
     }
 
-    public function importWithSemesterFlag(int $semester_flag): void {
+    public function importWithSemester(string $semester, int $year): void {
         $file = fopen($this->filename, 'r');
         if (!$file) {
             throw new Exception("Ошибка открытия файла");
         }
 
-        $semesterData = SemesterAndYearHelper::getSemesterAndYear($semester_flag);
-        $semester = $semesterData['semester'];
-        $year = $semesterData['year'];
-
         fgetcsv($file, 0, "\t");
+        $response = [];
 
         while (($row = fgetcsv($file, 0, ",")) !== false) {
             if (empty($row[0]) || empty($row[1]) || empty($row[2])) {
-                echo "Пропущена строка из-за отсутствия обязательных данных.\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "Пропущена строка из-за отсутствия обязательных данных (ФИО, сумма, должность)."
+                ];
                 continue;
             }
             
@@ -42,12 +41,27 @@ class SalaryImporter extends SemesterImporter {
                 ]);
                 
             } catch (PDOException $e) {
-                echo "Error importing $fio: " . $e->getMessage() . "\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "Ошибка импорта зарплаты для $fio: " . $e->getMessage()
+                ];
                 continue;
             }
         }
 
         fclose($file);
-        echo "Импорт долгов завершён!\n";
+        if (empty($response)) {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт зарплат завершён успешно.'
+            ];
+        } else {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт зарплат завершён с ошибками. Проверьте сообщения выше.'
+            ];
+        }
+
+        echo json_encode($response);
     }
 }

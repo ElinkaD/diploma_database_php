@@ -9,6 +9,7 @@ class StudentsInFlowsImporter extends Importer {
         }
 
         fgetcsv($file, 0, "\t");
+        $response = [];
 
         while (($row = fgetcsv($file, 0, ",")) !== false) {
             $id_isu = (int)$row[0];
@@ -26,12 +27,26 @@ class StudentsInFlowsImporter extends Importer {
                 ]);
                 
             } catch (PDOException $e) {
-                echo "Error importing student $id_isu: " . $e->getMessage() . "\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "Error importing $id_isu: " . $e->getMessage()
+                ];
                 continue;
             }
         }
 
         fclose($file);
-        echo "Импорт группы/трека завершён!\n";
+        if (empty($response)) {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт студенты в потоке завершён успешно!'
+            ];
+        } else {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт завершён с ошибками, проверьте сообщения выше.'
+            ];
+        }
+        echo json_encode($response);
     }
 }

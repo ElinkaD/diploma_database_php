@@ -1,7 +1,7 @@
 <?php
 require_once 'Importer.php';
 
-class VkrImporter extends Importer {
+class IPSubjectsImporter extends Importer {
     public function import(): void {
         $file = fopen($this->filename, 'r');
         if (!$file) {
@@ -15,30 +15,28 @@ class VkrImporter extends Importer {
             if (empty($row[0])) {
                 $response[] = [
                     'status' => 'error',
-                    'message' => 'Пропущена строка из-за отсутствия обязательных данных id_isu_student'
+                    'message' => 'Пропущена строка из-за отсутствия обязательных данных ФИО'
                 ];
+                continue;
             }
+            
+            $id_isu = (int)$row[0];
+            $name_disc = trim($row[1]);
+            $semester = (int)$row[2];
     
-            $id_isu_st = (int)$row[0];
-            $fio_sup = trim($row[1]);
-            $theme = $row[2];
-            $comment = $row[3];
-            $fio_con = trim($row[4]);
             
             try {
-                $stmt = $this->pdo->prepare("CALL insert_vkr(:id_isu_st, :fio_sup, :theme, :comment, :fio_con)");
+                $stmt = $this->pdo->prepare("CALL insert_ip(:id_isu, :name_disc, :semester)");
                 $stmt->execute([
-                    'id_isu_st' => $id_isu_st,
-                    'fio_sup' => $fio_sup,
-                    'theme' => $theme,
-                    'comment' => $comment,
-                    'fio_con' => $fio_con
+                    'id_isu' => $id_isu,
+                    'name_disc' => $name_disc,
+                    'semester' => $semester
                 ]);
                 
             } catch (PDOException $e) {
                 $response[] = [
                     'status' => 'error',
-                    'message' => "Error importing $id_isu_st: " . $e->getMessage()
+                    'message' => "Error importing $id_isu и $name_disc: " . $e->getMessage()
                 ];
                 continue;
             }
@@ -48,7 +46,7 @@ class VkrImporter extends Importer {
         if (empty($response)) {
             $response[] = [
                 'status' => 'success',
-                'message' => 'Импорт vkr завершён успешно!'
+                'message' => 'Импорт indicidual_plans_subject завершён успешно!'
             ];
         } else {
             $response[] = [

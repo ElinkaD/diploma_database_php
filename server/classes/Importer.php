@@ -12,5 +12,5 @@ abstract class Importer {
 }
 
 abstract class SemesterImporter extends Importer {
-    abstract public function importWithSemesterFlag(int $semester_flag): void;
+    abstract public function importWithSemester(string $semester, int $year): void;
 }

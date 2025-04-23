@@ -1,6 +1,5 @@
 <?php
 require_once 'Importer.php';
-require_once __DIR__ . '/../helpers/SemesterAndYearHelper.php';
 function insertGroup($pdo, $groupNumber, $course)
 {
     $stmt = $pdo->prepare("SELECT insert_group(:groupNumber, :course) AS group_id");
@@ -25,21 +24,21 @@ class PortfolioImporter extends SemesterImporter {
         throw new Exception("Метод import() не используется. Используй importWithSemesterFlag().");
     }
 
-    public function importWithSemesterFlag(int $semester_flag): void {
+    public function importWithSemester(string $semester, int $year): void {
         $file = fopen($this->filename, 'r');
         if (!$file) {
             throw new Exception("Ошибка открытия файла");
         }
 
-        $semesterData = SemesterAndYearHelper::getSemesterAndYear($semester_flag);
-        $semester = $semesterData['semester'];
-        $year = $semesterData['year'];
-
         fgetcsv($file, 0, "\t");
+        $response = [];
 
         while (($row = fgetcsv($file, 0, ",")) !== false) {
             if (empty($row[1]) || empty($row[4]) || empty($row[11])) {
-                echo "Пропущена строка из-за отсутствия обязательных данных (id_isu, group, status).\n";
+                $response[] = [
+                    'status' => 'warning',
+                    'message' => "Пропущена строка из-за отсутствия обязательных данных (id_isu, group, status)."
+                ];
                 continue;
             }
     
@@ -78,8 +77,10 @@ class PortfolioImporter extends SemesterImporter {
             $status = $status_map[$status_raw] ?? null;
             
             if (!$status) {
-                echo "⚠️ Неизвестный статус студента $id_isu: '$status_raw'\n";
-                continue;
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "⚠️ Неизвестный статус студента $id_isu (ФИО: $fio): '$status_raw'"
+                ];
             }
     
             try {
@@ -100,12 +101,27 @@ class PortfolioImporter extends SemesterImporter {
                 
                 // echo "Successfully imported: $id_isu - $fio\n";
             } catch (PDOException $e) {
-                echo "Error importing student $id_isu: " . $e->getMessage() . "\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "Ошибка импорта студента $id_isu (ФИО: $fio): " . $e->getMessage()
+                ];
                 continue;
             }
         }
 
         fclose($file);
-        echo "Импорт долгов завершён!\n";
+        if (empty($response)) {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт студентов завершён успешно.'
+            ];
+        } else {
+            $response[] = [
+                'status' => 'error',
+                'message' => 'Импорт студентов завершён с ошибками. Проверьте сообщения выше.'
+            ];
+        }
+
+        echo json_encode($response);
     }
 }

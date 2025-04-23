@@ -9,10 +9,14 @@ class KpiImporterImporter extends Importer {
         }
 
         fgetcsv($file, 0, "\t");
+        $response = [];
 
         while (($row = fgetcsv($file, 0, ",")) !== false) {
             if (empty($row[0])) {
-                echo "Пропущена строка из-за отсутствия обязательных данных ФИО\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "Пропущена строка из-за отсутствия обязательных данных (ФИО)."
+                ];
                 continue;
             }
             
@@ -30,12 +34,27 @@ class KpiImporterImporter extends Importer {
                 ]);
                 
             } catch (PDOException $e) {
-                echo "Error importing $fio: " . $e->getMessage() . "\n";
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "Ошибка импорта KPI для $fio: " . $e->getMessage()
+                ];
                 continue;
             }
         }
 
         fclose($file);
-        echo "Импорт kpi завершён!\n";
+        if (empty($response)) {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт KPI завершён успешно.'
+            ];
+        } else {
+            $response[] = [
+                'status' => 'success',
+                'message' => 'Импорт KPI завершён с ошибками. Проверьте сообщения выше.'
+            ];
+        }
+
+        echo json_encode($response);
     }
 }
