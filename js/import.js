@@ -13,16 +13,6 @@ const typesRequiringSemester = [
   'salary'
 ];
 
-function fillYearSelect() {
-  const currentYear = new Date().getFullYear();
-  for (let i = currentYear - 4; i <= currentYear + 4; i++) {
-    const option = document.createElement('option');
-    option.value = i;
-    option.textContent = i;
-    yearSelect.appendChild(option);
-  }
-}
-
 function toggleSemesterFields() {
   const selectedType = typeSelect.value;
   const needsSemester = typesRequiringSemester.includes(selectedType);
@@ -47,7 +37,6 @@ window.onload = () => {
     yearGroup.classList.add('hidden');
   }
 
-  fillYearSelect();  
   toggleSemesterFields();  
 };
 
@@ -63,9 +52,6 @@ form.addEventListener('submit', async (e) => {
     responseDiv.textContent = 'Выберите тип и файл.';
     return;
   }
-
-  console.log('Файл:', file);
-  console.log('Тип импорта:', type);
 
   const formData = new FormData();
   formData.append('file', file);

@@ -1,0 +1,77 @@
+const flowStudentsComponent = document.getElementById('flow-students');
+const flowStudentsTitle = document.getElementById('flow-students-title');
+const flowStudentsContainer = document.getElementById('flow-students-container');
+const educationFormFilter = document.getElementById('education-form-filter');
+const filterButton = document.getElementById('filter-button');
+const noResultsMessage = document.getElementById('no-results-message'); 
+
+let allFlowStudents = [];
+let trackName = new URLSearchParams(window.location.search).get('id_flow');
+
+async function showFlowStudents(flowId, flowName) {
+  flowStudentsTitle.textContent = `Студенты потока: ${flowName}`;
+
+  try {
+    const res = await fetch(`./server/api/FlowStudents.php?flow_id=${encodeURIComponent(flowId)}`);
+    allFlowStudents = await res.json();
+    renderFlowStudents(allFlowStudents); 
+  } catch (err) {
+    flowStudentsContainer.textContent = 'Ошибка загрузки: ' + err.message;
+  }
+}
+
+function renderFlowStudents(students) {
+  flowStudentsContainer.innerHTML = '';
+  if (students.length === 0) {
+    noResultsMessage.classList.remove('hidden');
+    return;
+  }
+
+  noResultsMessage.classList.add('hidden');
+
+  const table = document.createElement('table');
+  table.classList.add('data-table');
+
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>ID ИСУ</th>
+        <th>ФИО</th>
+        <th>Гражданство</th>
+        <th>Комментарий</th>
+        <th>Форма обучения</th>
+        <th>Комментарий к статусу</th>
+        <th>Группа</th>
+        <th>Трек</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${students.map(s => `
+        <tr>
+          <td>${s.id_isu}</td>
+          <td>${s.fio}</td>
+          <td>${s.citizenship ?? ''}</td>
+          <td>${s.comment ?? ''}</td>
+          <td>${s.education_form ?? ''}</td>
+          <td>${s.status_comment ?? ''}</td>
+          <td>${s.group_number ?? ''}</td>
+          <td>${s.track_name ?? ''}</td>
+        </tr>`).join('')}
+    </tbody>
+  `;
+
+  flowStudentsContainer.appendChild(table);
+}
+
+filterButton.addEventListener('click', async () => {
+  const flowId = new URLSearchParams(window.location.search).get('id_flow');
+  const educationForm = educationFormFilter.value;
+  
+  try {
+      const res = await fetch(`./server/api/FlowStudents.php?flow_id=${encodeURIComponent(flowId)}&education_form=${encodeURIComponent(educationForm)}`);
+      allFlowStudents = await res.json();
+      renderFlowStudents(allFlowStudents);
+  } catch (err) {
+      flowStudentsContainer.textContent = 'Ошибка фильтрации: ' + err.message;
+  }
+});
