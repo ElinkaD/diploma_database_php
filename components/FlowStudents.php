@@ -1,9 +1,9 @@
 
 <div id="flow-students">
   <a href="#" id="back-to-flows">Назад к списку потоков</a>
-  <h2 id="flow-students-title">Студенты потока:</h2>
+  <h1 id="flow-students-title">Студенты потока:</h1>
 
-  <div>
+  <div class="filters">
     <!-- <input type="text" id="student-search" placeholder="Поиск по ФИО..."> -->
     <select id="education-form-filter">
       <option value="бюджет">Бюджет</option>
@@ -14,7 +14,7 @@
   </div>
   
 
-  <ul id="flow-students-container"></ul>
+  <div id="flow-students-container"></div>
   <div id="no-results-message" class="hidden">Ничего не найдено</div>
 </div>
 

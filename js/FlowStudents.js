@@ -6,7 +6,6 @@ const filterButton = document.getElementById('filter-button');
 const noResultsMessage = document.getElementById('no-results-message'); 
 
 let allFlowStudents = [];
-let trackName = new URLSearchParams(window.location.search).get('id_flow');
 
 async function showFlowStudents(flowId, flowName) {
   flowStudentsTitle.textContent = `Студенты потока: ${flowName}`;
@@ -37,12 +36,12 @@ function renderFlowStudents(students) {
       <tr>
         <th>ID ИСУ</th>
         <th>ФИО</th>
-        <th>Гражданство</th>
-        <th>Комментарий</th>
         <th>Форма обучения</th>
-        <th>Комментарий к статусу</th>
         <th>Группа</th>
         <th>Трек</th>
+        <th>Гражданство</th>
+        <th>Комментарий к студенту</th>
+        <th>Комментарий к статусу</th>
       </tr>
     </thead>
     <tbody>
@@ -50,12 +49,12 @@ function renderFlowStudents(students) {
         <tr>
           <td>${s.id_isu}</td>
           <td>${s.fio}</td>
-          <td>${s.citizenship ?? ''}</td>
-          <td>${s.comment ?? ''}</td>
           <td>${s.education_form ?? ''}</td>
-          <td>${s.status_comment ?? ''}</td>
           <td>${s.group_number ?? ''}</td>
           <td>${s.track_name ?? ''}</td>
+          <td>${s.citizenship ?? ''}</td>
+          <td>${s.comment ?? ''}</td>
+          <td>${s.status_comment ?? ''}</td>
         </tr>`).join('')}
     </tbody>
   `;

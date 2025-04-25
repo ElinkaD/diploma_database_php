@@ -1,3 +1,12 @@
+document.querySelectorAll('select').forEach(select => {
+  select.addEventListener('focus', () => {
+    select.classList.add('select-open');
+  });
+  select.addEventListener('blur', () => {
+    select.classList.remove('select-open');
+  });
+});
+
 window.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const currentTab = urlParams.get('page');
@@ -32,5 +41,42 @@ window.addEventListener('DOMContentLoaded', () => {
           }
       };
       document.body.appendChild(script);
-  }
+    }
+
+    if (currentTab === 'StudentsList') {
+      const script = document.createElement('script');
+      script.src = './js/StudentsList.js';
+      script.onload = () => {
+          if (typeof fetchStudents === 'function') {
+            fetchStudents();
+          }
+        };
+      document.body.appendChild(script);
+    }
+
+    if (currentTab === 'Student') {
+      const script = document.createElement('script');
+      script.src = './js/Student.js';
+      script.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+          const studentId = urlParams.get('id_isu');
+          const studentName = urlParams.get('fio');
+
+          if (typeof showStudent === 'function') {
+            showStudent(studentId,studentName);
+          }
+        };
+      document.body.appendChild(script);
+    }
+
+    if (currentTab === 'TeachersList') {
+      const script = document.createElement('script');
+      script.src = './js/TeachersList.js';
+      script.onload = () => {
+          if (typeof fetchStudents === 'function') {
+            fetchStudents();
+          }
+        };
+      document.body.appendChild(script);
+    }
 });

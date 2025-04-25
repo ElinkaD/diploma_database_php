@@ -2,10 +2,10 @@
 $currentYear = date('Y');
 ?>
 
-<h2>Импорт данных</h2>
+<h1>Импорт данных</h1>
 
 <form id="import-form">
-    <label for="type">Тип импорта:</label>
+    <label for="type" class="text-base">Тип импорта</label>
     <select id="type" required>
         <option value="">Выберите...</option>
         <option value="portfolio">Портфолио</option>
@@ -25,7 +25,7 @@ $currentYear = date('Y');
     </select><br><br>
 
     <div class="form-group hidden" id="semester-group">
-        <label for="semester">Семестр:</label>
+        <label for="semester" class="text-base">Семестр</label>
         <select id="semester">
             <option value="">Текущий</option>
             <option value="весна">Весна</option>
@@ -34,7 +34,7 @@ $currentYear = date('Y');
     </div>
 
     <div class="form-group hidden" id="year-group">
-        <label for="year">Год:</label>
+        <label for="year" class="text-base">Год</label>
         <select id="year">
             <option value="">Текущий</option>
             <?php for ($i = $currentYear - 4; $i <= $currentYear + 4; $i++): ?>
