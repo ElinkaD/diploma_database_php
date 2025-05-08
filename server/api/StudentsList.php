@@ -24,70 +24,95 @@ if (!empty($fio)) {
     $where[] = "s.fio = :fio";
     $params['fio'] = $fio;
 }
-if (!empty($year)) {
-    $where[] = "latest_ss.year = :year";
-    $params['year'] = $year;
-}
-if (!empty($semester)) {
-    $where[] = "latest_ss.semester = :semester";
-    $params['semester'] = $semester;
-}
 if (!empty($status)) {
-    $where[] = "latest_ss.status = :status";
+    $where[] = "rs.status = :status";
     $params['status'] = $status;
 }
 if (!empty($education_form)) {
-    $where[] = "latest_ss.education_form = :education_form";
+    $where[] = "rs.education_form = :education_form";
     $params['education_form'] = $education_form;
 }
-if (!empty($group)) {
-    $where[] = "g.group_number ILIKE :group";
-    $params['group'] = '%' . $group . '%';
+if (!empty($_GET['group_id'])) {
+    $where[] = "g.id = :group";
+    $params['group'] = $_GET['group_id'];
 }
 if (!empty($track)) {
-    $where[] = "t.name ILIKE :track";
-    $params['track'] = '%' . $track . '%';
+    $where[] = "t.number = :track";
+    $params['track'] = $track;
 }
 if (!empty($citizenship)) {
     $where[] = "s.citizenship ILIKE :citizenship";
     $params['citizenship'] = '%' . $citizenship . '%';
 }
 
+$filterByYearSemester = !empty($year) || !empty($semester);
+
+if ($filterByYearSemester) {
+    if (!empty($year)) {
+        $where[] = "rs.year = :year";
+        $params[':year'] = $year;
+    }
+    if (!empty($semester)) {
+        $where[] = "rs.semester = :semester";
+        $params[':semester'] = $semester;
+    }
+}
+
 $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
 try {
-    $stmt = $pdo->prepare("
+    if ($filterByYearSemester) {
+        $query = "
+            SELECT 
+                s.id_isu, 
+                s.fio, 
+                s.id_individual_plan_isu, 
+                s.citizenship, 
+                s.comment, 
+                rs.education_form, 
+                rs.status, 
+                rs.semester, 
+                rs.year, 
+                rs.comment AS status_comment, 
+                g.group_number, 
+                g.year_enter,
+                t.number AS track_name
+            FROM Students s
+            JOIN student_statuses rs ON s.id_isu = rs.id_student
+            LEFT JOIN groups g ON rs.id_group = g.id
+            LEFT JOIN s335141.tracks t ON rs.id_track = t.id
+            $whereClause
+            ORDER BY s.fio ASC, rs.year DESC, rs.semester DESC";
+    } else {
+        $query = "
+            WITH ranked_statuses AS (
+            SELECT ss.*,
+                ROW_NUMBER() OVER (PARTITION BY id_student ORDER BY year DESC,
+                CASE WHEN semester = 'весна' THEN 1 ELSE 2 END DESC) AS rn
+            FROM student_statuses ss
+        )
         SELECT 
             s.id_isu, 
             s.fio, 
             s.id_individual_plan_isu, 
             s.citizenship, 
             s.comment, 
-            latest_ss.education_form, 
-            latest_ss.status, 
-            latest_ss.semester, 
-            latest_ss.year, 
-            latest_ss.comment AS status_comment, 
+            rs.education_form, 
+            rs.status, 
+            rs.semester, 
+            rs.year, 
+            rs.comment AS status_comment, 
             g.group_number, 
-            t.name AS track_name
-        FROM 
-            Students s
-        JOIN (
-            SELECT 
-                ss1.* 
-            FROM student_statuses ss1 
-            JOIN (
-                SELECT id_student, MAX(id) AS max_id 
-                FROM student_statuses 
-                GROUP BY id_student
-            ) ss2 ON ss1.id = ss2.max_id
-        ) latest_ss ON s.id_isu = latest_ss.id_student
-        LEFT JOIN groups g ON latest_ss.id_group = g.id
-        LEFT JOIN s335141.tracks t ON latest_ss.id_track = t.id
+            g.year_enter,
+            t.number AS track_name
+        FROM Students s
+        JOIN ranked_statuses rs ON s.id_isu = rs.id_student AND rs.rn = 1
+        LEFT JOIN groups g ON rs.id_group = g.id
+        LEFT JOIN s335141.tracks t ON rs.id_track = t.id
         $whereClause
-        ORDER BY latest_ss.year DESC, latest_ss.semester DESC, s.fio ASC
-    ");
-
+        ORDER BY s.fio ASC";
+    }
+    $stmt = $pdo->prepare($query);
     $stmt->execute($params);
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($students);

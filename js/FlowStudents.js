@@ -26,6 +26,8 @@ function renderFlowStudents(students) {
     return;
   }
 
+  let i = 0;
+
   noResultsMessage.classList.add('hidden');
 
   const table = document.createElement('table');
@@ -34,6 +36,7 @@ function renderFlowStudents(students) {
   table.innerHTML = `
     <thead>
       <tr>
+        <th></th>
         <th>ID ИСУ</th>
         <th>ФИО</th>
         <th>Форма обучения</th>
@@ -47,6 +50,7 @@ function renderFlowStudents(students) {
     <tbody>
       ${students.map(s => `
         <tr>
+          <td>${i = i + 1}</td>
           <td>${s.id_isu}</td>
           <td>${s.fio}</td>
           <td>${s.education_form ?? ''}</td>

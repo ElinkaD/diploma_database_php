@@ -43,7 +43,7 @@ $type = $_GET['type'];
 $semester = $_GET['semester'] ?? null;
 $year = $_GET['year'] ?? null;
 
-if (in_array($type, ['debts', 'flows', 'mentors', 'nagruzka', 'portfolio', 'salary'])) {
+if (in_array($type, ['debts', 'flows', 'mentors', 'portfolio', 'salary'])) {
     if (!$semester || !$year) {
         echo json_encode(['error' => 'Отсутствуют обязательные параметры: semester или year']);
         exit;
@@ -79,7 +79,9 @@ $className = $allowedImports[$type];
 $importer = new $className($pdo, $targetFile);
 
 try {
-    if (method_exists($importer, 'importWithSemester')) {
+    if ($type === 'portfolio' && method_exists($importer, 'importWithSemesterPortfolio')) {
+        $importer->importWithSemesterPortfolio($semester, $year, $_GET['plan_id'] ?? null);
+    } elseif (method_exists($importer, 'importWithSemester')) {
         $importer->importWithSemester($semester, $year);
     } elseif (method_exists($importer, 'import')) {
         $importer->import();

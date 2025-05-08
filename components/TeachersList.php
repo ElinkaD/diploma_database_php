@@ -3,7 +3,7 @@ $currentYear = date('Y');
 ?> 
 
 <div id="students-list-component">
-  <h1>Список студентов</h1>
+  <h1>Список преподавателей</h1>
 
   <div class="filters">
     <div class="filter-field">
@@ -17,34 +17,26 @@ $currentYear = date('Y');
     </div>
 
     <div class="filter-field">
-      <label for="group">Группа</label>
-      <input type="text" id="group">
+      <label for="discipline">Название дисциплины</label>
+      <input type="text" id="discipline">
     </div>
 
     <div class="filter-field">
-      <label for="track">Трек</label>
-      <input type="text" id="track">
+      <label for="id_rpd">ID RPD</label>
+      <input type="number" id="id_rpd">
     </div>
 
     <div class="filter-field">
-      <label for="status">Статус</label>
-      <select id="status">
+      <label for="status_rpd">Статус РПД</label>
+      <select id="status_rpd">
         <option value="">Любой</option>
-        <option value="обучается">Обучается</option>
-        <option value="мд">МД</option>
-        <option value="академ">Академ</option>
-        <option value="отчислен">Отчислен</option>
-        <option value="перевёлся_от_нас">Перевёлся от нас</option>
-        <option value="перевёлся_к_нам">Перевёлся к нам</option>
-      </select>
-    </div>
-
-    <div class="filter-field">
-      <label for="education-form">Форма обучения</label>
-      <select id="education-form">
-        <option value="">Любая</option>
-        <option value="бюджет">Бюджет</option>
-        <option value="контракт">Контракт</option>
+        <option value="новая">Новая</option>
+        <option value="черновик">Черновик</option>
+        <option value="в работе">В работе</option>
+        <option value="на доработке">На доработке</option>
+        <option value="одобрена">Одобрена</option>
+        <option value="на экспертизе">На экспертизе</option>
+        <option value="на подписи">На подписи</option>
       </select>
     </div>
 
@@ -61,20 +53,27 @@ $currentYear = date('Y');
       <label for="year">Год</label>
       <select id="year">
         <option value="">Любой</option>
-        <?php for ($i = $currentYear - 4; $i <= $currentYear + 4; $i++): ?>
+        <?php for ($i = $currentYear - 4; $i <= $currentYear + 10; $i++): ?>
           <option value="<?= $i ?>"><?= $i ?></option>
         <?php endfor; ?>
       </select>
     </div>
 
     <div class="filter-field">
-      <label for="citizenship">Гражданство</label>
-      <input type="text" id="citizenship">
+      <label for="workload_type">Тип нагрузки</label>
+      <select id="workload_type">
+        <option value="">Любой</option>
+        <option value="Лек">Лекции</option>
+        <option value="Пр">Практические</option>
+        <option value="Лаб">Лабораторные</option>
+        <option value="К">Консультации</option>
+        <option value="У">УСРС</option>
+      </select>
     </div>
 
     <button id="filter-button" style="margin-top: 24px;">Поиск</button>
   </div>
 
-  <div id="students-list"></div>
+  <div id="teachers-list"></div>
   <div id="no-results-message" class="hidden">Ничего не найдено</div>
 </div>

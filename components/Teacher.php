@@ -1,16 +1,16 @@
 
-<div id="student-info">
-  <a href="#" id="back-to-students">Назад к списку студентов</a>
-  <h1 id="student-title">Студент:</h1>
+<div id="teacher-info">
+  <a href="#" id="back-to-teachers">Назад к списку преподавателей</a>
+  <h1 id="teacher-title">Преподаватель:</h1>
 
   <div>
-  <div id="student-container"></div>
+  <div id="teacher-container"></div>
   <div id="no-results-message" class="hidden">Ничего не найдено</div>
 </div>
 
 <script>
-document.getElementById('back-to-students').addEventListener('click', () => {
-    window.location.href = `?page=StudentsList`;
+document.getElementById('back-to-teachers').addEventListener('click', () => {
+    window.location.href = `?page=TeachersList`;
 });
 </script>
 

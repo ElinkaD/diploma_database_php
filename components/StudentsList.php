@@ -18,12 +18,14 @@ $currentYear = date('Y');
 
     <div class="filter-field">
       <label for="group">Группа</label>
-      <input type="text" id="group">
-    </div>
+      <select id="group">
+          <option value="">Все группы</option>
+      </select>
+  </div>
 
     <div class="filter-field">
       <label for="track">Трек</label>
-      <input type="text" id="track">
+      <input type="number" id="track">
     </div>
 
     <div class="filter-field">

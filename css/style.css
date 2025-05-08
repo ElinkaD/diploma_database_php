@@ -204,27 +204,61 @@ a:hover {
 }
 
 .data-table thead th {
-  font-weight: 600; /* Semibold */
+  font-weight: 600;
   font-size: 12px;
   line-height: 18px;
   color: #858585;
   text-align: left;
-  padding: 8px 12px;
+  padding: 20px 12px;
   background-color: #fff;
   border-bottom: 1px solid #E7E7E7; 
   margin-bottom: 3px;
 }
 
+
 .data-table tbody td {
   font-weight: 400;
   font-size: 14px;
   line-height: 20px;
-  padding: 10px 12px;
+  padding: 20px 12px;
   margin-bottom: 3px;
 }
 
 .data-table tbody tr:nth-child(even) {
   background-color: #f9f9f9; 
+}
+
+.inner-table {
+  border: 1px solid #E7E7E7;
+  border-collapse: collapse;
+  padding: 8px;
+  width: calc(100% - 4px);
+}
+.inner-table thead th{
+  border: none;
+  padding-bottom: 10px;
+}
+.inner-table tbody td{
+  background-color: #FFFFFF; 
+}
+
+.left-border {
+  width: 4px;
+  background-color: #035DD8;
+}
+
+.toggle-details {
+  transition: transform 0.2s;
+}
+
+.toggle-details:focus {
+  outline: none;
+}
+
+.teacher-link{
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 /* .data-table tbody tr:hover {
@@ -257,6 +291,143 @@ a:hover {
   font-weight: 600;
 }
 
+/* === drag & drop === */
+#drop-zone {
+  border: 1px dashed #ADADAD;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 5px 0;
+  transition: all 0.3s ease;
+}
+
+#drop-zone.dragover {
+  border-color: #1846c7;
+  background-color: #edf0fb; 
+}
+
+#drop-zone input[type="file"] {
+  display: none;
+}
+
+#drop-zone p {
+  margin: 0;
+  padding: 0;
+}
+
+#drop-zone p span {
+  color: #1846c7;
+  cursor: pointer;
+}
+
+.upload{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  color: #858585;
+  font-size: 12px;
+  line-height: 18px;
+}
+#uploaded{
+  justify-content:space-between;
+}
+#uploaded a{
+  color: #1846C7;
+  margin-left: 5px;
+  font-size: 12px;
+}
+#uploaded button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ee215b; 
+
+}
+
+/* === Уведомления === */
+.notifications-container {
+  position: fixed;
+  top: 40px;
+  right: 22px;
+  z-index: 10000;
+  display: flex;
+}
+
+.notification {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 16px 20px;
+
+  width: 360px;
+  border-radius: 6px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+
+  color: #333;
+  font-size: 12px;
+  line-height: 18px;
+
+  animation: fadeIn 0.3s ease-out;
+  position: relative;
+}
+
+.notification-content {
+  display: flex;
+  align-items: flex-start;
+  width: 302px;
+  gap: 12px;
+  flex: 1;
+}
+
+
+.notification .message {
+  flex: 1;
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+.notification .close-btn {
+  background: none;
+  border: none;
+  margin-top: 4px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.notification.success { 
+  border-bottom: 4px solid #22B217;
+}
+
+.notification.error { 
+  border-bottom: 4px solid #EE215B;
+}
+
+.notification.warning { 
+  border-bottom: 4px solid #F7B500;
+}
+
+.notification.system { 
+  border-bottom: 4px solid #1846C7;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
 /* === Прочее === */
 .content {
   flex-grow: 1;
@@ -281,3 +452,12 @@ a:hover {
   margin-top: 1em;
   color: #999;
 }
+
+#import-form{
+  width: 504px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+

@@ -21,10 +21,14 @@ function insertStudent($pdo, $id_isu, $fio, $citizenship, $comment)
 }
 class PortfolioImporter extends SemesterImporter {
     public function import(): void {
-        throw new Exception("Метод import() не используется. Используй importWithSemesterFlag().");
+        throw new Exception("Метод import() не используется. Используй importWithSemester().");
     }
 
     public function importWithSemester(string $semester, int $year): void {
+        throw new Exception("Метод importWithSemester() не используется. Используй importWithSemesterPortfolio().");
+    }
+
+    public function importWithSemesterPortfolio(string $semester, int $year, int $plan_id): void {
         $file = fopen($this->filename, 'r');
         if (!$file) {
             throw new Exception("Ошибка открытия файла");
@@ -51,7 +55,7 @@ class PortfolioImporter extends SemesterImporter {
             $status_raw = mb_strtolower(trim($row[11]));
             $commentStudent = $row[18] ?? '';
             $commentStatus = $row[19] ?? '';
-            $trackName = $row[20] ?? 'test'; 
+            $trackNumber = (int)$row[20]; 
     
             $education_form_map = [
                 'бюджет' => 'бюджет',
@@ -87,20 +91,19 @@ class PortfolioImporter extends SemesterImporter {
                 insertStudent($this->pdo, $id_isu, $fio, $citizenship, $commentStudent);
                 $group_id = insertGroup($this->pdo, $group, $course);
     
-                $stmt = $this->pdo->prepare("CALL insert_student_status(:id_student, :status, :education_form, :comment, :id_group, :track_name, :semester, :year)");
+                $stmt = $this->pdo->prepare("CALL insert_student_status(:plan_id, :id_student, :status, :education_form, :comment, :id_group, :track_number, :semester, :year)");
                 $stmt->execute([
+                    'plan_id' => $plan_id,
                     'id_student' => $id_isu,
                     'status' => $status,
                     'education_form' => $education_form,
                     'comment' => $commentStatus,
                     'id_group' => $group_id,
-                    'track_name' => $trackName,
+                    'track_number' => $trackNumber,
                     'semester' => $semester,
                     'year' => $year
                 ]);
-                
-                // echo "Successfully imported: $id_isu - $fio\n";
-            } catch (PDOException $e) {
+                } catch (PDOException $e) {
                 $response[] = [
                     'status' => 'error',
                     'message' => "Ошибка импорта студента $id_isu (ФИО: $fio): " . $e->getMessage()

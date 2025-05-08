@@ -1,12 +1,8 @@
 <?php
 require_once 'Importer.php';
 
-class NagruzkaImporter extends SemesterImporter {
+class NagruzkaImporter extends Importer {
     public function import(): void {
-        throw new Exception("Метод import() не используется. Используй importWithSemesterFlag().");
-    }
-
-    public function importWithSemester(string $semester, int $year): void {
         $file = fopen($this->filename, 'r');
         if (!$file) {
             throw new Exception("Ошибка открытия файла");
@@ -37,7 +33,7 @@ class NagruzkaImporter extends SemesterImporter {
     
     
             try {
-                $stmt = $this->pdo->prepare("CALL insert_nagruzka(:name_discipline, :id_rpd, :semester_table, :fio, :lection, :pract, :lab, :ysrs,  :semester, :year, :comment)");
+                $stmt = $this->pdo->prepare("CALL insert_nagruzka(:name_discipline, :id_rpd, :semester_table, :fio, :lection, :pract, :lab, :ysrs, :comment)");
                 $stmt->execute([
                     'name_discipline' => $name_discipline,
                     'id_rpd' => $id_rpd,
@@ -47,8 +43,6 @@ class NagruzkaImporter extends SemesterImporter {
                     'pract' => $pract,
                     'lab' => $lab,
                     'ysrs' => $ysrs,
-                    'semester' => $semester,
-                    'year' => $year,
                     'comment' => $comment
                 ]);
                 

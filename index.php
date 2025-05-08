@@ -13,4 +13,6 @@ if (file_exists($componentPath)) {
 }
 echo '</main>';
 
+echo '<div id="notifications-container" class="notifications-container"></div>';
+
 include 'partials/footer.php';

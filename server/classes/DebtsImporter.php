@@ -3,7 +3,7 @@ require_once 'Importer.php';
 
 class DebtsImporter extends SemesterImporter {
     public function import(): void {
-        throw new Exception("Метод import() не используется. Используй importWithSemesterFlag().");
+        throw new Exception("Метод import() не используется. Используй importWithSemester().");
     }
 
     public function importWithSemester(string $semester, int $year): void {

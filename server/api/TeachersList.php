@@ -3,96 +3,27 @@ require_once '../db/db_connect.php';
 
 header('Content-Type: application/json');
 
-$id_isu = $_GET['id_isu'] ?? null;
-$fio = $_GET['fio'] ?? null;
-$year = $_GET['year'] ?? null;
-$semester = $_GET['semester'] ?? null;
-$status = $_GET['status'] ?? null;
-$education_form = $_GET['education_form'] ?? null;
-$group = $_GET['group'] ?? null;
-$track = $_GET['track'] ?? null;
-$citizenship = $_GET['citizenship'] ?? null;
-
-$where = [];
-$params = [];
-
-if (!empty($id_isu)) {
-    $where[] = "s.id_isu = :id_isu";
-    $params['id_isu'] = $id_isu;
-}
-if (!empty($fio)) {
-    $where[] = "s.fio = :fio";
-    $params['fio'] = $fio;
-}
-if (!empty($year)) {
-    $where[] = "latest_ss.year = :year";
-    $params['year'] = $year;
-}
-if (!empty($semester)) {
-    $where[] = "latest_ss.semester = :semester";
-    $params['semester'] = $semester;
-}
-if (!empty($status)) {
-    $where[] = "latest_ss.status = :status";
-    $params['status'] = $status;
-}
-if (!empty($education_form)) {
-    $where[] = "latest_ss.education_form = :education_form";
-    $params['education_form'] = $education_form;
-}
-if (!empty($group)) {
-    $where[] = "g.group_number ILIKE :group";
-    $params['group'] = '%' . $group . '%';
-}
-if (!empty($track)) {
-    $where[] = "t.name ILIKE :track";
-    $params['track'] = '%' . $track . '%';
-}
-if (!empty($citizenship)) {
-    $where[] = "s.citizenship ILIKE :citizenship";
-    $params['citizenship'] = '%' . $citizenship . '%';
-}
-
-$whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+$params = [
+    'p_id_isu' => !empty($_GET['id_isu']) ? (int)$_GET['id_isu'] : null,
+    'p_fio' => !empty($_GET['fio']) ? trim($_GET['fio']) : null,
+    'p_discipline' => !empty($_GET['discipline']) ? trim($_GET['discipline']) : null,
+    'p_id_rpd' => !empty($_GET['id_rpd']) ? (int)$_GET['id_rpd'] : null,
+    'p_status_rpd' => !empty($_GET['status_rpd']) ? trim($_GET['status_rpd']) : null,
+    'p_semester' => !empty($_GET['semester']) ? trim($_GET['semester']) : null,
+    'p_year' => !empty($_GET['year']) ? (int)$_GET['year'] : null,
+    'p_workload_type' => !empty($_GET['workload_type']) ? trim($_GET['workload_type']) : null,
+];
 
 try {
-    $stmt = $pdo->prepare("
-        SELECT 
-            s.id_isu, 
-            s.fio, 
-            s.id_individual_plan_isu, 
-            s.citizenship, 
-            s.comment, 
-            latest_ss.education_form, 
-            latest_ss.status, 
-            latest_ss.semester, 
-            latest_ss.year, 
-            latest_ss.comment AS status_comment, 
-            g.group_number, 
-            t.name AS track_name
-        FROM 
-            Students s
-        JOIN (
-            SELECT 
-                ss1.* 
-            FROM student_statuses ss1 
-            JOIN (
-                SELECT id_student, MAX(id) AS max_id 
-                FROM student_statuses 
-                GROUP BY id_student
-            ) ss2 ON ss1.id = ss2.max_id
-        ) latest_ss ON s.id_isu = latest_ss.id_student
-        LEFT JOIN groups g ON latest_ss.id_group = g.id
-        LEFT JOIN s335141.tracks t ON latest_ss.id_track = t.id
-        $whereClause
-        ORDER BY latest_ss.year DESC, latest_ss.semester DESC, s.fio ASC
-    ");
-
+    $stmt = $pdo->prepare("SELECT call_teachers(
+        :p_id_isu, :p_fio, :p_discipline, :p_id_rpd,
+        :p_status_rpd, :p_semester, :p_year, :p_workload_type
+    )");
     $stmt->execute($params);
-    $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode($students);
+    $teachers = $stmt->fetchColumn();
+    echo $teachers;
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Ошибка при получении списка студентов: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'Ошибка при получении списка преподавателей: ' . $e->getMessage()]);
 }
 ?>

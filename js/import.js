@@ -1,55 +1,144 @@
 const form = document.getElementById('import-form');
 const yearSelect = document.getElementById('year');
 const semesterSelect = document.getElementById('semester');
-const responseDiv = document.getElementById('import-response');
+const planInput = document.getElementById('plan');
+// const responseDiv = document.getElementById('import-response');
 const typeSelect = document.getElementById('type');
+
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file');
+const fileInfoBefore = document.getElementById('upload-hint');
+const fileInfo = document.getElementById('uploaded');
+const fileNameSpan = document.getElementById('uploaded-file');
+const removeFileBtn = document.getElementById('remove-file');
 
 const typesRequiringSemester = [
   'debts',
   'flows',
   'mentors',
-  'nagruzka',
   'portfolio',
   'salary'
 ];
 
-function toggleSemesterFields() {
-  const selectedType = typeSelect.value;
-  const needsSemester = typesRequiringSemester.includes(selectedType);
+const typesRequiringPlan = ['portfolio'];
+let studyPlans = [];
 
-  const semesterGroup = semesterSelect.closest('.form-group');
-  const yearGroup = yearSelect.closest('.form-group');
-
-  if (semesterGroup && yearGroup) {
-    semesterGroup.classList.toggle('hidden', !needsSemester);
-    yearGroup.classList.toggle('hidden', !needsSemester);
-  } else {
-    console.error('Не удалось найти родительский элемент .form-group');
+async function loadStudyPlans() {
+  try {
+      const response = await fetch('./server/api/get_study_plans.php');
+      if (!response.ok) throw new Error('Ошибка загрузки учебных планов');
+      studyPlans = await response.json();
+      updatePlanSelect();
+  } catch (error) {
+     console.error('Ошибка:', error);
+     showNotification('error', 'Не удалось загрузить учебные планы: ' + error.message);
   }
 }
 
-window.onload = () => {
-  const semesterGroup = semesterSelect.closest('.form-group');
-  const yearGroup = yearSelect.closest('.form-group');
+function updatePlanSelect() {
+  const planSelect = document.getElementById('plan');
+  planSelect.innerHTML = '<option value="">Выберите учебный план</option>';
   
-  if (semesterGroup && yearGroup) {
-    semesterGroup.classList.add('hidden');
-    yearGroup.classList.add('hidden');
-  }
+  studyPlans.forEach(plan => {
+      const option = document.createElement('option');
+      option.value = plan.id_isu;
+      option.textContent = plan.name;
+      planSelect.appendChild(option);
+  });
+}
 
-  toggleSemesterFields();  
+function toggleSemesterFields() {
+  const selectedType = typeSelect.value;
+  const needsSemester = typesRequiringSemester.includes(selectedType);
+  const needsPlan = typesRequiringPlan.includes(selectedType);
+
+  const semesterGroup = document.getElementById('semester-group'); 
+  const yearGroup = document.getElementById('year-group'); 
+  const planGroup = document.getElementById('plan-group'); 
+
+  if (semesterGroup && yearGroup && planGroup) {
+    semesterGroup.classList.toggle('hidden', !needsSemester);
+    yearGroup.classList.toggle('hidden', !needsSemester);
+    planGroup.classList.toggle('hidden', !needsPlan);
+  } else {
+    console.error('Не удалось найти элементы формы');
+    showNotification('error', 'Ошибка при обновлении формы');
+  }
+}
+
+window.onload = async () => {
+  toggleSemesterFields();
+  await loadStudyPlans();
 };
 
 typeSelect.addEventListener('change', toggleSemesterFields); 
 
+// === Drag & Drop ===
+dropZone.addEventListener('click', () => fileInput.click());
+
+dropZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length > 0) {
+    fileInput.files = e.dataTransfer.files;
+    showFileInfo();
+  }
+});
+
+fileInput.addEventListener('change', showFileInfo);
+
+function showFileInfo() {
+  if (fileInput.files.length > 0) {
+    fileNameSpan.textContent = fileInput.files[0].name;
+    fileInfoBefore.classList.add('hidden');
+    fileInfo.classList.remove('hidden');
+    dropZone.style.border = 'none';
+  } else {
+    clearFile();
+  }
+}
+
+removeFileBtn.addEventListener('click', clearFile);
+
+function clearFile() {
+  fileInput.value = '';
+  fileInfo.classList.add('hidden');
+  fileInfoBefore.classList.remove('hidden');
+  fileNameSpan.textContent = '';
+  dropZone.style.border = '';
+}
+
+function resetForm() {
+  fileInput.value = '';  
+  yearSelect.value = '';  
+  semesterSelect.value = '';  
+  planInput.value = ''; 
+  typeSelect.value = ''; 
+
+  document.getElementById('plan-group').classList.add('hidden');
+  document.getElementById('semester-group').classList.add('hidden');
+  document.getElementById('year-group').classList.add('hidden');
+}
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const file = document.getElementById('file').files[0];
+  // responseDiv.textContent = ''; 
+
+  const file = fileInput.files[0];
   const type = typeSelect.value;
 
   if (!file || !type) {
-    responseDiv.textContent = 'Выберите тип и файл.';
+    showNotification('error', 'Выберите тип и файл для импорта');
     return;
   }
 
@@ -69,6 +158,16 @@ form.addEventListener('submit', async (e) => {
     }
 
     url += `&semester=${encodeURIComponent(semester)}&year=${encodeURIComponent(year)}`;
+
+    if (type==='portfolio') {
+      const planId = document.getElementById('plan').value;
+      if (planId) {
+        url += `&plan_id=${encodeURIComponent(planId)}`;
+      } else {
+        showNotification('error', 'Для импорта портфолио выберите учебный план');
+        return;
+      }
+    }
   }
 
   try {
@@ -78,8 +177,24 @@ form.addEventListener('submit', async (e) => {
     });
 
     const result = await res.json();
-    responseDiv.textContent = result.message || result.error;
+      if (Array.isArray(result)) {
+        result.forEach(item => {
+          showNotification(item.status || 'system', item.message);
+        });
+      } else {
+        showNotification(result.status || (res.ok ? 'success' : 'error'), 
+                        result.message || result.error || 'Операция выполнена');
+      }
+
+    clearFile();
+
+    if (res.ok && (!Array.isArray(result) || result.some(r => r.status === 'success'))) {
+      resetForm();
+    }
   } catch (err) {
-    responseDiv.textContent = 'Ошибка при импорте: ' + err.message;
+     console.error('Ошибка при импорте:', err);
+     showNotification('error', 'Ошибка при импорте: ' + err.message);
   }
 });
+
+
