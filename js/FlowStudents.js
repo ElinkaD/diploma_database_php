@@ -5,17 +5,16 @@ const educationFormFilter = document.getElementById('education-form-filter');
 const filterButton = document.getElementById('filter-button');
 const noResultsMessage = document.getElementById('no-results-message'); 
 
-let allFlowStudents = [];
-
 async function showFlowStudents(flowId, flowName) {
   flowStudentsTitle.textContent = `Студенты потока: ${flowName}`;
 
   try {
     const res = await fetch(`./server/api/FlowStudents.php?flow_id=${encodeURIComponent(flowId)}`);
-    allFlowStudents = await res.json();
-    renderFlowStudents(allFlowStudents); 
+    let flowStudent = await res.json();
+    renderFlowStudents(flowStudent); 
   } catch (err) {
-    flowStudentsContainer.textContent = 'Ошибка загрузки: ' + err.message;
+    // flowStudentsContainer.textContent = 'Ошибка загрузки: ' + err.message;
+    showNotification('error', 'Ошибка загрузки: ' + err.message);
   }
 }
 
@@ -72,9 +71,10 @@ filterButton.addEventListener('click', async () => {
   
   try {
       const res = await fetch(`./server/api/FlowStudents.php?flow_id=${encodeURIComponent(flowId)}&education_form=${encodeURIComponent(educationForm)}`);
-      allFlowStudents = await res.json();
-      renderFlowStudents(allFlowStudents);
+      let flowStudent = await res.json();
+      renderFlowStudents(flowStudent);
   } catch (err) {
-      flowStudentsContainer.textContent = 'Ошибка фильтрации: ' + err.message;
+      // flowStudentsContainer.textContent = 'Ошибка фильтрации: ' + err.message;
+      showNotification('error', 'Ошибка фильтрации: ' + err.message);
   }
 });

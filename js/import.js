@@ -138,7 +138,7 @@ form.addEventListener('submit', async (e) => {
   const type = typeSelect.value;
 
   if (!file || !type) {
-    showNotification('error', 'Выберите тип и файл для импорта');
+    showNotification('warning', 'Выберите тип и файл для импорта');
     return;
   }
 
@@ -164,7 +164,7 @@ form.addEventListener('submit', async (e) => {
       if (planId) {
         url += `&plan_id=${encodeURIComponent(planId)}`;
       } else {
-        showNotification('error', 'Для импорта портфолио выберите учебный план');
+        showNotification('warning', 'Для импорта портфолио выберите учебный план');
         return;
       }
     }

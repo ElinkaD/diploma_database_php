@@ -12,9 +12,6 @@ const yearSelect = document.getElementById('year');
 const semesterSelect = document.getElementById('semester');
 const searchButton = document.getElementById('filter-button');
 
-
-let allFlows = [];
-
 searchButton.addEventListener('click', async () => {
   let selectedYear = yearSelect.value;
   let selectedSemester = semesterSelect.value;
@@ -32,7 +29,6 @@ searchButton.addEventListener('click', async () => {
 
     const res = await fetch(`./server/api/FlowsList.php?${params.toString()}`);
     const flows = await res.json();
-    allFlows = flows;
     renderFlows(flows);
   } catch (err) {
     flowsList.innerHTML = 'Ошибка при фильтрации: ' + err.message;
@@ -42,16 +38,13 @@ searchButton.addEventListener('click', async () => {
 
 async function fetchFlows() {
   try {
-    console.log('📡 Отправка запроса на FlowsList.php');
     const res = await fetch('./server/api/FlowsList.php');
     const flows = await res.json();
     console.log('📥 Ответ:', flows);
-
-    allFlows = flows;
     renderFlows(flows);
   } catch (err) {
     console.error('❌ Ошибка загрузки потоков:', err);
-    flowsList.innerHTML = 'Ошибка загрузки потоков: ' + err.message;
+    showNotification('error', 'Ошибка загрузки потоков: ' + err.message);
   }
 }
 

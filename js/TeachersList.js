@@ -28,12 +28,13 @@ searchButton.addEventListener('click', async () => {
     const teachers = await res.json();
     if (!Array.isArray(teachers)) {
       console.error('Ожидался массив, получено:', teachers);
-      teachersList.innerHTML = 'Ошибка: неверный формат данных';
+      showNotification('warning', 'Ошибка: неверный формат данных');
       return;
     }
     renderTeachers(teachers);
   } catch (err) {
-    teachersList.innerHTML = 'Ошибка при фильтрации: ' + err.message;
+    // teachersList.innerHTML = 'Ошибка при фильтрации: ' + err.message;
+    showNotification('error', 'Ошибка при фильтрации: ' + err.message);
   }
 });
 
@@ -45,7 +46,8 @@ async function fetchTeachers() {
     console.log('📥 Ответ:', teachers);
     renderTeachers(teachers);
   } catch (err) {
-    teachersList.innerHTML = 'Ошибка загрузки преподавателей: ' + err.message;
+    // teachersList.innerHTML = 'Ошибка загрузки преподавателей: ' + err.message;
+    showNotification('error', 'Ошибка загрузки преподавателей: ' + err.message);
   }
 }
 

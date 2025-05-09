@@ -22,8 +22,9 @@ async function loadGroups() {
       updateGroupSelect();
   } catch (error) {
       console.error('Ошибка:', error);
-      noResultsMessage.textContent = 'Ошибка загрузки списка групп';
-      noResultsMessage.classList.remove('hidden');
+      // noResultsMessage.textContent = 'Ошибка загрузки списка групп';
+      // noResultsMessage.classList.remove('hidden');
+      showNotification('error', 'Ошибка загрузки списка групп');
   }
 }
 
@@ -56,7 +57,8 @@ searchButton.addEventListener('click', async () => {
     const students = await res.json();
     renderStudents(students);
   } catch (err) {
-    studentsList.innerHTML = 'Ошибка при фильтрации: ' + err.message;
+    // studentsList.innerHTML = 'Ошибка при фильтрации: ' + err.message;
+    showNotification('error', 'Ошибка при фильтрации: ' + err.message);
   }
 });
 
@@ -68,7 +70,9 @@ async function fetchStudents() {
     console.log('📥 Ответ:', students);
     renderStudents(students);
   } catch (err) {
-    studentsList.innerHTML = 'Ошибка загрузки студентов: ' + err.message;
+    // studentsList.innerHTML = 'Ошибка загрузки студентов: ' + err.message;
+    showNotification('error', 'Ошибка загрузки студентов: ' + err.message);
+    
   }
 }
 

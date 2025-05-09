@@ -11,7 +11,8 @@ async function showStudent(studentId, studentName) {
     const studentData = await res.json();
     renderStudent(studentData); 
   } catch (err) {
-    StudentsContainer.textContent = 'Ошибка загрузки: ' + err.message;
+    // StudentsContainer.textContent = 'Ошибка загрузки: ' + err.message;
+    showNotification('error', 'Выберите тип и файл для импорта');
   }
 }
 

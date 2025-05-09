@@ -146,6 +146,8 @@ window.addEventListener('DOMContentLoaded', () => {
           if (typeof showTeacher === 'function') {
             showTeacher(teacherId,teacherName);
           }
+          loadStudyPlans();
+          togglePlanVisibility();
         };
       document.body.appendChild(script);
     }
