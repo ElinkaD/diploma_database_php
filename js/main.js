@@ -46,7 +46,7 @@ function showNotification(type, message) {
     setTimeout(() => notif.remove(), 300);
   });
   
-  container.appendChild(notif);
+  container.insertBefore(notif, container.firstChild);
   
   if (type !== 'error') {
     setTimeout(() => {
@@ -62,7 +62,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const currentTab = urlParams.get('page');
 
     if (currentTab === 'dashboard') {
-      showNotification('success', 'Сообщение об успешной работе чего-либо. Тут может быть много текста, который не умещается в одну или две строчки.');
+      showNotification('system', 'Войдите в систему!');
   }
 
     if (currentTab === 'import') {
@@ -148,6 +148,17 @@ window.addEventListener('DOMContentLoaded', () => {
           }
           loadStudyPlans();
           togglePlanVisibility();
+        };
+      document.body.appendChild(script);
+    }
+
+    if (currentTab === 'Akadem') {
+      const script = document.createElement('script');
+      script.src = './js/Akadem.js';
+      script.onload = () => {
+          if (typeof fetchTeachers === 'function') {
+            fetchTeachers();
+          }
         };
       document.body.appendChild(script);
     }

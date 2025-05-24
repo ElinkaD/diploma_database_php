@@ -75,7 +75,7 @@ class FlowsImporter extends SemesterImporter {
             ];
         } else {
             $response[] = [
-                'status' => 'success',
+                'status' => 'warning',
                 'message' => 'Импорт завершён с ошибками, проверьте сообщения выше.'
             ];
         }

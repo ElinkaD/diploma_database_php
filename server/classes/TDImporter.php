@@ -1,7 +1,7 @@
 <?php
 require_once 'Importer.php';
 
-class IPSubjectsImporter extends Importer {
+class TDImporter extends Importer {
     public function import(): void {
         $file = fopen($this->filename, 'r');
         if (!$file) {
@@ -12,31 +12,28 @@ class IPSubjectsImporter extends Importer {
         $response = [];
 
         while (($row = fgetcsv($file, 0, ",")) !== false) {
-            if (empty($row[0])) {
+            if (empty($row[1])) {
                 $response[] = [
                     'status' => 'error',
-                    'message' => 'Пропущена строка из-за отсутствия обязательных данных ФИО'
+                    'message' => 'Пропущена строка из-за отсутствия обязательных данных'
                 ];
-                continue;
             }
-            
-            $id_isu = (int)$row[0];
-            $name_disc = trim($row[1]);
-            $semester = (int)$row[2];
     
+            $d = trim($row[1]);
+            $id_teacher = (int)$row[2];
+
             
             try {
-                $stmt = $this->pdo->prepare("CALL insert_ip(:id_isu, :name_disc, :semester)");
+                $stmt = $this->pdo->prepare("CALL insert_td(:d, :id_teacher)");
                 $stmt->execute([
-                    'id_isu' => $id_isu,
-                    'name_disc' => $name_disc,
-                    'semester' => $semester
+                    'd' => $d,
+                    'id_teacher' => $id_teacher
                 ]);
                 
             } catch (PDOException $e) {
                 $response[] = [
                     'status' => 'error',
-                    'message' => "Error importing $id_isu и $name_disc: " . $e->getMessage()
+                    'message' => "Error importing $d и $id_teacher: " . $e->getMessage()
                 ];
                 continue;
             }
@@ -46,7 +43,7 @@ class IPSubjectsImporter extends Importer {
         if (empty($response)) {
             $response[] = [
                 'status' => 'success',
-                'message' => 'Импорт indicidual_plans_subject завершён успешно!'
+                'message' => 'Импорт disciplines_of_teachers завершён успешно!'
             ];
         } else {
             $response[] = [

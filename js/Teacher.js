@@ -13,6 +13,8 @@ const typesRequiringPlan = ['4'];
 let studyPlans = [];
 let currentTeacherId = null;
 let  all_hours_for_header = null;
+let  scenario_bool = false;
+
 
 function getPeriodTitle(scenario) {
   switch (scenario) {
@@ -34,6 +36,7 @@ async function loadStudyPlans() {
     const res = await fetch('./server/api/get_study_plans.php');
     if (!res.ok) throw new Error('Не удалось загрузить учебные планы');
     studyPlans = await res.json();
+    console.log(studyPlans);
     updatePlanSelect();
   } catch (err) {
     console.error(err);
@@ -46,7 +49,7 @@ function updatePlanSelect() {
   studyPlans.forEach(plan => {
     const option = document.createElement('option');
     option.value = plan.id_isu;
-    option.textContent = plan.name;
+    option.textContent = `${plan.name} (${plan.year}г)`; 
     planSelect.appendChild(option);
   });
 }
@@ -77,6 +80,7 @@ filterButton.addEventListener('click', async () => {
     const res = await fetch(url);
     const teacherData = await res.json();
     all_hours_for_header = teacherData.total_hours_by_scenario;
+    scenario_bool = true;
     renderWorkload(teacherData.workload.map(w => w.json_build_object));
   } catch (err) {
     console.error('Ошибка при получении данных:', err);
@@ -210,7 +214,7 @@ function renderWorkload(workloadList) {
   console.log(workloadList);
   WorkloadContainer.innerHTML = '';
 
-  if (!Array.isArray(workloadList) || workloadList.length === 0 || all_hours_for_header === 0) {
+  if (!Array.isArray(workloadList) || workloadList.length === 0)  {
     noResultsMessage.classList.remove('hidden');
     return;
   }

@@ -3,7 +3,7 @@ $currentYear = date('Y');
 ?> 
 
 <div id="students-list-component">
-  <h1>Список преподавателей</h1>
+  <h1>Форма для расчета академ разницы</h1>
 
   <div class="filters">
     <div class="filter-field">

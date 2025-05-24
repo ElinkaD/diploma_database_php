@@ -46,7 +46,7 @@ class IndividualPlanNumberImporter extends Importer {
             ];
         } else {
             $response[] = [
-                'status' => 'error',
+                'status' => 'warning',
                 'message' => 'Импорт завершен с ошибками. Проверьте сообщения выше.'
             ];
         }

@@ -1,5 +1,13 @@
 <?php
+session_start();
+
 $page = $_GET['page'] ?? 'dashboard';
+$publicPages = ['dashboard'];
+
+if (!isset($_SESSION['token']) && !in_array($page, $publicPages)) {
+    header('Location: index.php?page=dashboard');
+    exit;
+}
 
 include 'partials/header.php';
 include 'partials/menu.php';

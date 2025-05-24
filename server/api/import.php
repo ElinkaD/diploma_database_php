@@ -25,6 +25,7 @@ $allowedImports = [
     'vkr' => 'VkrImporter',
     'ip_subjects' => 'IPSubjectsImporter',
     'rpd_teachers' => 'RpdTeachersImporter',
+    'disciplines_of_teachers' => 'TDImporter',
 ];
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

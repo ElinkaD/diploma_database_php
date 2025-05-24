@@ -9,14 +9,15 @@ function insertGroup($pdo, $groupNumber, $course)
     return $result['group_id'];
 }
 
-function insertStudent($pdo, $id_isu, $fio, $citizenship, $comment)
+function insertStudent($pdo, $id_isu, $fio, $citizenship, $comment, $code)
 {
-    $stmt = $pdo->prepare("CALL insert_student(:id_isu, :fio, :citizenship, :comment)");
+    $stmt = $pdo->prepare("CALL insert_student(:id_isu, :fio, :citizenship, :comment, :code)");
     $stmt->execute([
         'id_isu' => $id_isu,
         'fio' => $fio,
         'citizenship' => $citizenship,
-        'comment' => $comment
+        'comment' => $comment,
+        'code' => $code
     ]);
 }
 class PortfolioImporter extends SemesterImporter {
@@ -51,6 +52,7 @@ class PortfolioImporter extends SemesterImporter {
             $citizenship = $row[3];
             $group = $row[4];
             $course = (int)$row[5];
+            $code = mb_strtolower(trim($row[6]));
             $education_form_raw = mb_strtolower($row[10] ?? '');
             $status_raw = mb_strtolower(trim($row[11]));
             $commentStudent = $row[18] ?? '';
@@ -86,9 +88,21 @@ class PortfolioImporter extends SemesterImporter {
                     'message' => "⚠️ Неизвестный статус студента $id_isu (ФИО: $fio): '$status_raw'"
                 ];
             }
+
+            $specialtyRaw = trim($row[6] ?? '');
+            $code = preg_match('/^(\d{2}\.\d{2}\.\d{2})/', $specialtyRaw, $matches) 
+                ? $matches[1]  
+                : null;
+
+            if (empty($code)) {
+                $response[] = [
+                    'status' => 'warning',
+                    'message' => "Не удалось распарсить код специальности для студента $id_isu: '$specialtyRaw'"
+                ];
+            }
     
             try {
-                insertStudent($this->pdo, $id_isu, $fio, $citizenship, $commentStudent);
+                insertStudent($this->pdo, $id_isu, $fio, $citizenship, $commentStudent, $code);
                 $group_id = insertGroup($this->pdo, $group, $course);
     
                 $stmt = $this->pdo->prepare("CALL insert_student_status(:plan_id, :id_student, :status, :education_form, :comment, :id_group, :track_number, :semester, :year)");
@@ -120,7 +134,7 @@ class PortfolioImporter extends SemesterImporter {
             ];
         } else {
             $response[] = [
-                'status' => 'error',
+                'status' => 'warning',
                 'message' => 'Импорт студентов завершён с ошибками. Проверьте сообщения выше.'
             ];
         }

@@ -57,7 +57,7 @@ class SalaryImporter extends SemesterImporter {
             ];
         } else {
             $response[] = [
-                'status' => 'success',
+                'status' => 'warning',
                 'message' => 'Импорт зарплат завершён с ошибками. Проверьте сообщения выше.'
             ];
         }

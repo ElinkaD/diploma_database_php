@@ -50,7 +50,7 @@ class KpiImporterImporter extends Importer {
             ];
         } else {
             $response[] = [
-                'status' => 'success',
+                'status' => 'warning',
                 'message' => 'Импорт KPI завершён с ошибками. Проверьте сообщения выше.'
             ];
         }

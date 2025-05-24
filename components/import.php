@@ -23,6 +23,7 @@ $currentYear = date('Y');
             <option value="mentors">Менторы</option>
             <option value="kpi">KPI</option>
             <option value="salary">Ставки</option>
+            <option value="disciplines_of_teachers">Дисциплины преподавателей</option>
         </select>
     </div>
 

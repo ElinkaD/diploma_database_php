@@ -19,6 +19,7 @@ async function showFlowStudents(flowId, flowName) {
 }
 
 function renderFlowStudents(students) {
+  console.log(students);
   flowStudentsContainer.innerHTML = '';
   if (students.length === 0) {
     noResultsMessage.classList.remove('hidden');

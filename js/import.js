@@ -16,6 +16,7 @@ const typesRequiringSemester = [
   'debts',
   'flows',
   'mentors',
+  'nagruzka',
   'portfolio',
   'salary'
 ];
@@ -182,7 +183,7 @@ form.addEventListener('submit', async (e) => {
           showNotification(item.status || 'system', item.message);
         });
       } else {
-        showNotification(result.status || (res.ok ? 'success' : 'error'), 
+        showNotification(result.status ?? (res.ok ? 'success' : 'error'), 
                         result.message || result.error || 'Операция выполнена');
       }
 

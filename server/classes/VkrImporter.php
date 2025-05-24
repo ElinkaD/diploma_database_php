@@ -52,7 +52,7 @@ class VkrImporter extends Importer {
             ];
         } else {
             $response[] = [
-                'status' => 'success',
+                'status' => 'warning',
                 'message' => 'Импорт завершён с ошибками, проверьте сообщения выше.'
             ];
         }

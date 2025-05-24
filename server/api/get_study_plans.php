@@ -10,7 +10,7 @@ header('Content-Type: application/json');
 
 
 try {
-    $query = "SELECT id_isu, name FROM s335141.curricula ORDER BY year DESC";
+    $query = "SELECT id_isu, name, year FROM s335141.curricula ORDER BY year DESC";
     $stmt = $pdo->prepare($query);
     $stmt->execute();
     
