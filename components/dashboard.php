@@ -1,3 +1,5 @@
+<h1 style="margin-bottom: 0;">Главная страница</h1>
+
 <?php
 if (!isset($_SESSION['token'])):
 ?>
@@ -30,10 +32,25 @@ if (!isset($_SESSION['token'])):
     </script>
 
 <?php else: ?>
-
-    <h2>Личный кабинет</h2>
-    <p>Добро пожаловать, <?= htmlspecialchars($_SESSION['login']) ?>!</p>
-
-    <p><a href="./server/api/logout.php">Выйти из аккаунта</a></p>
-
+    <div class="kabinet">
+        <h2>Добро пожаловать, <?= htmlspecialchars($_SESSION['login']) ?>!</h2>
+        <button><a href="./server/api/logout.php">Выйти из аккаунта</a></button>
+    </div>
 <?php endif; ?>
+
+
+<footer>
+    <p>Данная веб-разработка выполнена в&nbsp;рамках выпускной квалификационной работы.</p>
+
+    <p><strong>Тема:</strong> &laquo;Проектирование базы данных и&nbsp;разработка инструмента визуализации расчёта нагрузки преподавателей с&nbsp;использованием веб-технологий&raquo;.<br>
+    <strong>Автор:</strong> Дусаева Элина<br>
+    <strong>Год выпуска:</strong> 2025<br>
+    <strong>Факультет:</strong> Программной инженерии и&nbsp;компьютерных технологий<br>
+    <strong>Направление подготовки:</strong> Компьютерные технологии в&nbsp;дизайне</p>
+
+    <p>Ссылка на&nbsp;первую часть проекта, посвящённую учебным планам:<br>
+        <a href="https://se.ifmo.ru/~s335141/dev/frontend/dist" target="_blank">https://se.ifmo.ru/~s335141/dev/frontend/dist</a>
+    </p>
+
+    <p><a href="https://t.me/linaroon" target="_blank">Связаться с&nbsp;автором</a></p>
+</footer>

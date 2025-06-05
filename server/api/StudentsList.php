@@ -9,7 +9,6 @@ $year = $_GET['year'] ?? null;
 $semester = $_GET['semester'] ?? null;
 $status = $_GET['status'] ?? null;
 $education_form = $_GET['education_form'] ?? null;
-$group = $_GET['group'] ?? null;
 $track = $_GET['track'] ?? null;
 $citizenship = $_GET['citizenship'] ?? null;
 
@@ -21,8 +20,8 @@ if (!empty($id_isu)) {
     $params['id_isu'] = $id_isu;
 }
 if (!empty($fio)) {
-    $where[] = "s.fio = :fio";
-    $params['fio'] = $fio;
+    $where[] = "s.fio ILIKE :fio";
+    $params['fio'] = '%' . $fio . '%';
 }
 if (!empty($status)) {
     $where[] = "rs.status = :status";
@@ -35,6 +34,10 @@ if (!empty($education_form)) {
 if (!empty($_GET['group_id'])) {
     $where[] = "g.id = :group";
     $params['group'] = $_GET['group_id'];
+}
+if (!empty($_GET['plan_id'])) {
+    $where[] = "c.id_isu = :plan";
+    $params['plan'] = $_GET['plan_id'];
 }
 if (!empty($track)) {
     $where[] = "t.number = :track";
@@ -50,11 +53,11 @@ $filterByYearSemester = !empty($year) || !empty($semester);
 if ($filterByYearSemester) {
     if (!empty($year)) {
         $where[] = "rs.year = :year";
-        $params[':year'] = $year;
+        $params['year'] = $year;
     }
     if (!empty($semester)) {
         $where[] = "rs.semester = :semester";
-        $params[':semester'] = $semester;
+        $params['semester'] = $semester;
     }
 }
 
@@ -76,11 +79,15 @@ try {
                 rs.comment AS status_comment, 
                 g.group_number, 
                 g.year_enter,
+                c.name AS plan_name,
+                c.year AS plan_year,
                 t.number AS track_name
             FROM Students s
             JOIN student_statuses rs ON s.id_isu = rs.id_student
             LEFT JOIN groups g ON rs.id_group = g.id
             LEFT JOIN s335141.tracks t ON rs.id_track = t.id
+            LEFT JOIN s335141.sections sec ON t.id_section = sec.id
+            LEFT JOIN s335141.curricula c ON sec.id_curricula  = c.id_isu
             $whereClause
             ORDER BY s.fio ASC, rs.year DESC, rs.semester DESC";
     } else {
@@ -104,11 +111,15 @@ try {
             rs.comment AS status_comment, 
             g.group_number, 
             g.year_enter,
+            c.name AS plan_name,
+            c.year AS plan_year,
             t.number AS track_name
         FROM Students s
         JOIN ranked_statuses rs ON s.id_isu = rs.id_student AND rs.rn = 1
         LEFT JOIN groups g ON rs.id_group = g.id
         LEFT JOIN s335141.tracks t ON rs.id_track = t.id
+        LEFT JOIN s335141.sections sec ON t.id_section = sec.id
+        LEFT JOIN s335141.curricula c ON sec.id_curricula  = c.id_isu
         $whereClause
         ORDER BY s.fio ASC";
     }

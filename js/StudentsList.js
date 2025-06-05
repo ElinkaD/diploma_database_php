@@ -9,6 +9,7 @@ const trackInput = document.getElementById('track');
 const citizenshipInput = document.getElementById('citizenship');
 const idInput = document.getElementById('id_isu');
 const fioInput = document.getElementById('fio');
+const planSelect = document.getElementById('plan');
 
 const searchButton = document.getElementById('filter-button');
 
@@ -22,15 +23,12 @@ async function loadGroups() {
       updateGroupSelect();
   } catch (error) {
       console.error('Ошибка:', error);
-      // noResultsMessage.textContent = 'Ошибка загрузки списка групп';
-      // noResultsMessage.classList.remove('hidden');
       showNotification('error', 'Ошибка загрузки списка групп');
   }
 }
 
 function updateGroupSelect() {
   groupSelect.innerHTML = '<option value="">Все группы</option>';
-  
   groupsList.forEach(group => {
       const option = document.createElement('option');
       option.value = group.id; 
@@ -39,16 +37,41 @@ function updateGroupSelect() {
   });
 }
 
+
+async function loadStudyPlans() {
+  try {
+    const res = await fetch('./server/api/get_study_plans.php');
+    if (!res.ok) throw new Error('Не удалось загрузить учебные планы');
+    studyPlans = await res.json();
+    console.log(studyPlans);
+    updatePlanSelect();
+  } catch (err) {
+    console.error(err);
+    showNotification('error', 'Ошибка загрузки планов: ' + err.message);
+  }
+}
+
+function updatePlanSelect() {
+  planSelect.innerHTML = '<option value="">Выберите учебный план</option>';
+  studyPlans.forEach(plan => {
+    const option = document.createElement('option');
+    option.value = plan.id_isu;
+    option.textContent = `${plan.name} ${plan.year}г`; 
+    planSelect.appendChild(option);
+  });
+}
+
 searchButton.addEventListener('click', async () => {
   let params = new URLSearchParams();
 
-  if (idInput.value.trim()) params.append('id_isu', trackInput.value.trim());
-  if (fioInput.value.trim()) params.append('fio', citizenshipInput.value.trim());
+  if (idInput.value.trim()) params.append('id_isu', idInput.value);
+  if (fioInput.value.trim()) params.append('fio', fio.value.trim());
   if (yearSelect.value) params.append('year', yearSelect.value);
   if (semesterSelect.value) params.append('semester', semesterSelect.value);
   if (statusSelect.value) params.append('status', statusSelect.value);
   if (educationFormSelect.value) params.append('education_form', educationFormSelect.value);
   if (groupSelect.value) params.append('group_id', groupSelect.value);
+  if (planSelect.value) params.append('plan_id', planSelect.value);
   if (trackInput.value.trim()) params.append('track', trackInput.value.trim());
   if (citizenshipInput.value.trim()) params.append('citizenship', citizenshipInput.value.trim());
 
@@ -99,6 +122,7 @@ function renderStudents(students) {
         <th>Форма обучения</th>
         <th>Группа</th>
         <th>Год поступления</th>
+        <th>УП</th>
         <th>Трек</th>
         <th>Статус</th>
         <th>Семестр</th>
@@ -117,6 +141,7 @@ function renderStudents(students) {
           <td>${s.education_form ?? ''}</td>
           <td>${s.group_number ?? ''}</td>
           <td>${s.year_enter ?? ''}</td>
+          <td>${s.plan_name ?? ''} ${s.plan_year ?? ''}</td> 
           <td>${s.track_name ?? ''}</td>
           <td>${s.status}</td>
           <td>${s.semester}</td>

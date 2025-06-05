@@ -64,7 +64,7 @@ function renderStudent(data) {
 
   // Статусы
   if (data.statuses?.length) {
-    createTable('Статусы', ['education_form', 'group_number', 'track_name', 'status', 'year', 'semester', 'comment'], data.statuses);
+    createTable('Статусы', ['education_form', 'group_number', 'plan_name_year', 'track_name', 'status', 'year', 'semester', 'comment'], data.statuses);
   }
 
   // Индивидуальный план

@@ -4,6 +4,11 @@ $currentYear = date('Y');
 
 <h1>Импорт данных</h1>
 
+<p>
+    <a href="https://docs.google.com/spreadsheets/d/10RlD4E3SFGWekg3DRQa0tFkAyisB0pYNCPGDVai09_E/edit?usp=sharing" target="_blank">Таблица с шаблонами импорта</a><br>
+    <a href="https://docs.google.com/document/d/1e9HsgtZnxr0KgyiZzjaCPtEF5QXcvugv8PakfwDVvHk/edit?usp=sharing" target="_blank">Инструкция по работе с шаблонами</a>
+</p>
+
 <form id="import-form">
     <div class="filter-field">
         <label for="type">Тип импорта</label>

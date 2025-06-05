@@ -23,6 +23,13 @@ $currentYear = date('Y');
       </select>
   </div>
 
+  <div class="filter-field" id="plan-group">
+      <label for="plan">Название учебного плана</label>
+      <select id="plan">
+          <option value="">Выберите учебный план</option>
+      </select>
+  </div>
+
     <div class="filter-field">
       <label for="track">Трек</label>
       <input type="number" id="track">

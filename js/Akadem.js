@@ -1,66 +1,35 @@
-const teachersList = document.getElementById('teachers-list');
+const statusList = document.getElementById('status-list');
 const noResultsMessage = document.getElementById('no-results-message'); 
 
 const idInput = document.getElementById('id_isu');
-const fioInput = document.getElementById('fio');
-const disciplineInput = document.getElementById('discipline');
-const idRpdInput = document.getElementById('id_rpd');
-const statusSelect = document.getElementById('status_rpd');
-const semesterSelect = document.getElementById('semester');
-const yearSelect = document.getElementById('year');
-const workloadTypeSelect = document.getElementById('workload_type');
 const searchButton = document.getElementById('filter-button');
 
+let selectedStatusId = null;
+
 searchButton.addEventListener('click', async () => {
-  let params = new URLSearchParams();
-
-  if (idInput.value.trim()) params.append('id_isu', idInput.value.trim());
-  if (fioInput.value.trim()) params.append('fio', fioInput.value.trim());
-  if (disciplineInput.value.trim()) params.append('discipline', disciplineInput.value.trim());
-  if (idRpdInput.value.trim()) params.append('id_rpd', idRpdInput.value.trim());
-  if (statusSelect.value) params.append('status_rpd', statusSelect.value);
-  if (semesterSelect.value) params.append('semester', semesterSelect.value);
-  if (yearSelect.value) params.append('year', yearSelect.value);
-  if (workloadTypeSelect.value) params.append('workload_type', workloadTypeSelect.value);
-
+  const id_isu = idInput.value.trim();
+  if (!id_isu) return alert('Введите табельный номер');
   try {
-    const res = await fetch(`./server/api/TeachersList.php?${params.toString()}`);
-    const teachers = await res.json();
-    if (!Array.isArray(teachers)) {
-      console.error('Ожидался массив, получено:', teachers);
+    const res = await fetch(`./server/api/GetStudentStatuses.php?id_isu=${encodeURIComponent(id_isu)}`);
+    const statuses = await res.json();
+    if (!Array.isArray(statuses)) {
+      console.error('Ожидался массив, получено:', statuses);
       showNotification('warning', 'Ошибка: неверный формат данных');
       return;
     }
-    renderTeachers(teachers);
+    renderStatuses(statuses);
   } catch (err) {
-    // teachersList.innerHTML = 'Ошибка при фильтрации: ' + err.message;
-    showNotification('error', 'Ошибка при фильтрации: ' + err.message);
+    showNotification('error', 'Ошибка при получении статусов: ' + err.message);
   }
 });
 
 
-async function fetchTeachers() {
-  try {
-    const res = await fetch('./server/api/TeachersList.php');
-    const teachers = await res.json();
-    console.log('📥 Ответ:', teachers);
-    renderTeachers(teachers);
-  } catch (err) {
-    // teachersList.innerHTML = 'Ошибка загрузки преподавателей: ' + err.message;
-    showNotification('error', 'Ошибка загрузки преподавателей: ' + err.message);
-  }
-}
-
-
-function renderTeachers(teachers) {
-  teachersList.innerHTML = '';
-
-  if (teachers.length === 0) {
-    noResultsMessage.classList.remove('hidden');
+function renderStatuses(statuses) {
+  statusList.innerHTML = '';
+  if (!Array.isArray(statuses) || statuses.length === 0) {
+    statusList.innerHTML = '<div>Статусы не найдены</div>';
     return;
   }
-
-  noResultsMessage.classList.add('hidden');
 
   const table = document.createElement('table');
   table.classList.add('data-table');
@@ -68,103 +37,189 @@ function renderTeachers(teachers) {
   const thead = document.createElement('thead');
   thead.innerHTML = `
     <tr class="text-table-header">
-      <th>Таб. номер</th>
-      <th>Преподаватель</th>
-      <th>Год переизбрания</th>
-      <th>Срок</th>
+      <th>Форма обучения</th>
+      <th>Статус</th>
+      <th>Семестр</th>
+      <th>Год</th>
+      <th>Группа</th>
+      <th>Год поступления</th>
+      <th>Трек</th>
+      <th>УП</th>
+      <th>Год УП</th>
       <th>Комментарий</th>
-      <th>Общая нагрузка за текущий семестр</th>
-      <th></th>
+      <th>Выбрать</th>
     </tr>
   `;
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
-
-  teachers.forEach((t, index) => {
+  statuses.forEach(status => {
     const row = document.createElement('tr');
-    row.classList.add('teacher-row');
 
     row.innerHTML = `
-      <td>${t.id_isu ?? ''}</td>
+      <td>${status.education_form ?? ''}</td>
+      <td>${status.status ?? ''}</td>
+      <td>${status.semester ?? ''}</td>
+      <td>${status.year ?? ''}</td>
+      <td>${status.group_number ?? ''}</td>
+      <td>${status.year_enter ?? ''}</td>
+      <td>${status.track_name ?? ''}</td>
+      <td>${status.plan_name ?? ''}</td>
+      <td>${status.plan_year ?? ''}</td>
+      <td>${status.comment ?? ''}</td>
       <td>
-        <span class="clickable" style="font-weight: 600;">
-          ${t.fio}
-        </span>
-      </td>
-      <td>${t.re_election_year ?? ''}</td>
-      <td>${t.term ?? ''}</td>
-      <td>${t.comment ?? ''}</td>
-      <td>${t.total_hours ?? 0}</td>
-      <td>
-        <button class="toggle-details" data-index="${index}" style="background:none; border:none; cursor:pointer;">
-          <img src="./img/arrow-down.svg" alt="Развернуть" class="toggle-icon">
-        </button>
-      </td>    `;
-
-    const detailRow = document.createElement('tr');
-    detailRow.style.display = 'none';
-
-    const rpdList = (t.workload ?? []).map(r => `
-      <tr>
-        <td>${r.discipline ?? ''}</td>
-        <td>${r.id_rpd ?? ''}</td>
-        <td>${r.status_rpd ?? ''}</td>
-        <td>${r.semester ?? ''}</td>
-        <td>${r.year ?? ''}</td>
-        <td>${r.count_hours ?? ''}</td>
-        <td>${r.comment ?? ''}</td>
-        <td>${r.workload_type ?? ''}</td>
-        <td>${r.assessment_type ?? ''}</td>
-      </tr>
-    `).join('');
-
-    detailRow.innerHTML = `
-      <td colspan="7" style="padding: 0;">
-        <div class="inner-table-container" style="display: flex; border-radius: 6px;">
-          <div class="left-border"></div>
-          <table class="inner-table">
-            <thead>
-                <tr class="text-table-header">
-                  <th>Дисциплина</th>
-                  <th>ID РПД</th>
-                  <th>Статус РПД</th>
-                  <th>Семестр</th>
-                  <th>Год</th>
-                  <th>Часы</th>
-                  <th>Комментарий</th>
-                  <th>Тип нагрузки</th>
-                  <th>Тип контроля</th>
-                </tr>
-              </thead>
-            <tbody>
-              ${rpdList}
-            </tbody>
-          </table>
-        </div>
+        <button class="select-status-btn" data-status-id="${status.id_status}">Выбрать</button>
       </td>
     `;
     tbody.appendChild(row);
-    tbody.appendChild(detailRow);
+  });
+  table.appendChild(tbody);
+  statusList.appendChild(table);
 
-    row.querySelector('.clickable').addEventListener('click', () => {
-      window.location.href = `?page=Teacher&id_isu=${encodeURIComponent(t.id_isu)}&fio=${encodeURIComponent(t.fio)}`;
-    });
-
-    const toggleButton = row.querySelector('.toggle-details');
-    const toggleIcon = toggleButton.querySelector('.toggle-icon');
-
-    toggleButton.addEventListener('click', (e) => {
-      e.stopPropagation(); 
-      const isOpen = detailRow.style.display === 'table-row';
-      detailRow.style.display = isOpen ? 'none' : 'table-row';
-      toggleIcon.src = isOpen 
-        ? './img/arrow-down.svg' 
-        : './img/arrow-up.svg';
-      toggleIcon.alt = isOpen ? 'Развернуть' : 'Свернуть';
+  document.querySelectorAll('.select-status-btn').forEach(button => {
+    button.addEventListener('click', async (e) => {
+      const id_status = e.target.dataset.statusId;
+      selectedStatusId = id_status;
+      await loadPlansAndTracks(selectedStatusId);
     });
   });
+}
 
-  table.appendChild(tbody);
-  teachersList.appendChild(table);
+
+async function loadPlansAndTracks(id_status) {
+  try {
+    const res = await fetch(`./server/api/GetCurriculaTracks.php?id_status=${encodeURIComponent(id_status)}`);
+    const tracks = await res.json();
+
+    if (!Array.isArray(tracks)) {
+      showNotification('warning', 'Неверный формат данных учебных планов');
+      return;
+    }
+
+    renderPlanSelect(tracks);
+  } catch (err) {
+    showNotification('error', 'Ошибка загрузки планов: ' + err.message);
+  }
+}
+
+function renderPlanSelect(tracks) {
+  const statusesContainer = document.getElementById('statuses-container');
+  const select = document.getElementById('status-select');
+  select.innerHTML = '';
+
+  const placeholder = document.createElement('option');
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  placeholder.textContent = 'Выберите необходимый трек';
+  select.appendChild(placeholder);
+
+  tracks.forEach(track => {
+    const option = document.createElement('option');
+    option.value = track.id_track; 
+    option.textContent = `${track.curricula_name} (${track.curricula_year}) – ${track.track_name} (${track.track_number})`;
+    select.appendChild(option);
+  });
+
+  statusesContainer.classList.remove('hidden');
+
+  select.addEventListener('change', async (e) => {
+    const id_track = e.target.value;
+    try {
+      const res = await fetch(`./server/api/Akadem.php?id_status=${encodeURIComponent(selectedStatusId)}&id_track=${encodeURIComponent(id_track)}`);
+      const result = await res.json();
+      renderAcademicDifference(result);
+      showNotification('success', 'Расчет академ. разницы завершён');
+      console.log(result); 
+    } catch (err) {
+      showNotification('error', 'Ошибка расчета: ' + err.message);
+    }
+  });
+}
+
+function renderAcademicDifference(data) {
+  const akademList = document.getElementById('akadem-list');
+  akademList.innerHTML = '';
+
+  const createTable = (title, headers, rows, fields) => {
+    const section = document.createElement('section');
+    const heading = document.createElement('h3');
+    heading.textContent = title;
+    section.appendChild(heading);
+
+    const table = document.createElement('table');
+    table.classList.add('data-table');
+
+    table.innerHTML = `
+      <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${rows.map(row => {
+          const trClass = row.has_debt ? ' class="has-debt"' : '';
+          return `
+            <tr${trClass}>
+              ${fields.map(field => {
+                let value = row[field];
+
+                if (field.includes('teachers')) {
+                  if (Array.isArray(value) && value.length > 0) {
+                    const validTeachers = value.filter(t => t && t.id_isu && t.fio);
+                    if (validTeachers.length > 0) {
+                      return `<td>
+                        <ul class="teachers-list">
+                          ${validTeachers.map(t => `
+                            <li>
+                              <a href="?page=Teacher&id_isu=${encodeURIComponent(t.id_isu)}&fio=${encodeURIComponent(t.fio)}"
+                                class="teacher-link clickable" data-id="${t.id_isu}" data-fio="${t.fio}">
+                                ${t.fio}
+                              </a>
+                            </li>`).join('')}
+                        </ul>
+                      </td>`;
+                    }
+                  }
+                  return '<td>—</td>';
+                }
+
+                if (field === 'has_debt') {
+                  return `<td>${value ? 'Да' : 'Нет'}</td>`;
+                }
+                return `<td>${value ?? '—'}</td>`;
+              }).join('')}
+            </tr>`;
+        }).join('')}
+      </tbody>
+    `;
+
+    section.appendChild(table);
+    akademList.appendChild(section);
+  };
+
+  // 1. Перезачет
+  if (data.transferable?.length) {
+    createTable(
+      'Дисциплины для перезачета',
+      ['Название', 'id rpd', 'Реализатор', 'З.Е.', 'Форма контроля', 'Семестр'],
+      data.transferable,
+      ['discipline_name', 'id_rpd', 'implementer', 'credits', 'assessment_type', 'semester_number']
+    );
+  }
+
+  // 2. Согласование
+  if (data.negotiable?.length) {
+    createTable(
+      'Дисциплины для согласования',
+      ['Название', 'id rpd', 'Старые З.Е.', 'Новые З.Е.', 'Старая форма', 'Новая форма', 'Текущий реализатор', 'Новый реализатор', 'Преподаватели', 'Семестр'],
+      data.negotiable,
+      ['discipline_name', 'id_rpd', 'current_credits', 'new_credits', 'current_assessment_type', 'new_assessment_type', 'current_implementer', 'new_implementer', 'new_teachers', 'semester_number']
+    );
+  }
+
+  // 3. Для сдачи
+  if (data.new_disciplines?.length) {
+    createTable(
+      'Дисциплины для сдачи',
+      ['Название', 'id rpd', 'З.Е.', 'Форма контроля', 'Реализатор', 'Преподаватели', 'Есть долг'],
+      data.new_disciplines,
+      ['discipline_name', 'id_rpd', 'credits', 'assessment_type', 'implementer', 'teachers', 'has_debt']
+    );
+  }
 }

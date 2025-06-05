@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>База данных диплом</title>
+    <title>Диплом база данных</title>
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>

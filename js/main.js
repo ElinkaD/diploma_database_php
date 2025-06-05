@@ -104,6 +104,7 @@ window.addEventListener('DOMContentLoaded', () => {
           if (typeof fetchStudents === 'function') {
             fetchStudents();
             loadGroups(); 
+            loadStudyPlans();
           }
         };
       document.body.appendChild(script);
@@ -155,11 +156,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (currentTab === 'Akadem') {
       const script = document.createElement('script');
       script.src = './js/Akadem.js';
-      script.onload = () => {
-          if (typeof fetchTeachers === 'function') {
-            fetchTeachers();
-          }
-        };
+      // script.onload = () => {
+      //     if (typeof fetchTeachers === 'function') {
+      //       fetchTeachers();
+      //     }
+      //   };
       document.body.appendChild(script);
     }
 });

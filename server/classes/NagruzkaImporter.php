@@ -53,8 +53,11 @@ class NagruzkaImporter extends SemesterImporter {
                 ]);
                 
                 // echo "Successfully imported: $id_isu - $fio\n";
-            } catch (PDOException $e) {
-                echo "Error importing student $name_discipline и $fio: " . $e->getMessage() . "\n";
+            }  catch (PDOException $e) {
+                $response[] = [
+                    'status' => 'error',
+                    'message' => "Ошибка импорта нагрузки преподавателя $fio и $name_discipline,  $id_rpd,  $semester_table: " . $e->getMessage()
+                ];
                 continue;
             }
         }
@@ -67,7 +70,7 @@ class NagruzkaImporter extends SemesterImporter {
             ];
         } else {
             $response[] = [
-                'status' => 'success',
+                'status' => 'warning',
                 'message' => 'Импорт завершён с ошибками, проверьте сообщения выше.'
             ];
         }

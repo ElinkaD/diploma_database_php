@@ -9,20 +9,22 @@ error_reporting(E_ALL);
 header('Content-Type: application/json');
 
 $id_status = $_GET['id_status'] ?? null;
-$id_track = $_GET['id_track'] ?? null;
 
-if (!$id_status || !$id_track) {
+if (!$id_status) {
     http_response_code(400);
-    echo json_encode(['error' => 'Не переданы обязательные параметры: id_status и id_track']);
+    echo json_encode(['error' => 'Не передан  статус']);
     exit;
 }
 
 try {
-    $query = "SELECT calculate_academic_difference(:id_status, :id_track)";
+    $query = "SELECT get_available_tracks(:id_status) as result;";
     $stmt = $pdo->prepare($query);
-    $stmt->execute([':id_status' => $id_status, ':id_track' => $id_track]);
-    $akadem_diff = $stmt->fetchColumn();
-    echo $akadem_diff;
+    $stmt->execute([':id_status' => $id_status]);
+    
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $tracks = json_decode($result['result'], true);
+    
+    echo json_encode($tracks ?: []);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Ошибка базы данных: ' . $e->getMessage()]);

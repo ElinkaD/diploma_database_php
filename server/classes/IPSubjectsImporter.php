@@ -12,10 +12,10 @@ class IPSubjectsImporter extends Importer {
         $response = [];
 
         while (($row = fgetcsv($file, 0, ",")) !== false) {
-            if (empty($row[0])) {
+            if (empty($row[0]) || empty($row[1]) || empty($row[2])) {
                 $response[] = [
-                    'status' => 'error',
-                    'message' => 'Пропущена строка из-за отсутствия обязательных данных ФИО'
+                    'status' => 'warning',
+                    'message' => "Пропущена строка из-за отсутствия обязательных данных ФИО, дисциплина, семестр: $row[0], $row[1], $row[2]"
                 ];
                 continue;
             }
@@ -32,11 +32,15 @@ class IPSubjectsImporter extends Importer {
                     'name_disc' => $name_disc,
                     'semester' => $semester
                 ]);
-                
             } catch (PDOException $e) {
+                $raw_message = $e->errorInfo[2]; 
+
+                preg_match('/ERROR:\s+(.*?)(\s+CONTEXT:|$)/', $raw_message, $matches);
+                $clean_message = $matches[1] ?? 'Неизвестная ошибка';
+
                 $response[] = [
                     'status' => 'error',
-                    'message' => "Error importing $id_isu и $name_disc: " . $e->getMessage()
+                    'message' => "Ошибка при импорте $id_isu и $name_disc: $clean_message"
                 ];
                 continue;
             }

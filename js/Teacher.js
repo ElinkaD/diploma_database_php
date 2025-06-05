@@ -49,7 +49,7 @@ function updatePlanSelect() {
   studyPlans.forEach(plan => {
     const option = document.createElement('option');
     option.value = plan.id_isu;
-    option.textContent = `${plan.name} (${plan.year}г)`; 
+    option.textContent = `${plan.name} ${plan.year}г`; 
     planSelect.appendChild(option);
   });
 }
