@@ -475,3 +475,7 @@ a:hover {
   align-items: center;
   justify-content: space-between;
 }
+
+.changable-highlight {
+  background-color: #C8D3F2; 
+}
