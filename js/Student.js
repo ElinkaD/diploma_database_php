@@ -18,7 +18,6 @@ async function showStudent(studentId, studentName) {
 
 function renderStudent(data) {
   StudentsContainer.innerHTML = '';
-  Plan.innerHTML = '';
   noResultsMessage.classList.add('hidden');
 
   const createTable = (title, headers, rows) => {
@@ -40,7 +39,7 @@ function renderStudent(data) {
       <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
       <tbody>
       ${rows.map(row => {
-        const isChangable = row.changable === true;
+        const isChangable = row.changable === true || row.changable === "true"; 
         return `
           <tr${isChangable ? ' class="changable-highlight"' : ''}>
             ${headers.map(key => {

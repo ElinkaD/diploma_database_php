@@ -16,19 +16,33 @@ h1 {
   font-weight: 700;
 }
 
+strong{
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
 .container {
     display: flex;
     width: 100%;
 }
 
 /* === Sidebar === */
+.logo{
+  width: 166px;
+  height: 60px;
+  display: block;
+  /* margin: 0 auto; */
+  margin-left: 10px;
+}
+
 .sidebar {
   min-width: 264px;
   background-color: #FFFFFF;
   border-right: 1px solid #E7E7E7;
   padding: 8px;
   color: #5C5C5C;
-  padding-top: 40px;
+  padding-top: 29px;
 }
 
 .sidebar ul {
@@ -476,6 +490,14 @@ a:hover {
   justify-content: space-between;
 }
 
-.changable-highlight {
-  background-color: #C8D3F2; 
+.data-table tbody tr.changable-highlight {
+  background-color: #C8D3F2;
+}
+
+.data-table tbody tr.changable-highlight:nth-child(even) {
+  background-color: #EDF0FB;
+}
+
+.spring-semester td{
+  background-color: #EDF0FB !important; 
 }

@@ -105,8 +105,12 @@ function renderTeachers(teachers) {
     const detailRow = document.createElement('tr');
     detailRow.style.display = 'none';
 
-    const rpdList = (t.workload ?? []).map(r => `
-      <tr>
+    const rpdList = (t.workload ?? []).map(r => {
+    const isSpring = r.semester?.toLowerCase() === 'весна';
+    const semesterClass = isSpring ? 'spring-semester' : '';
+    
+    return `
+      <tr class="${semesterClass}">
         <td>${r.discipline ?? ''}</td>
         <td>${r.id_rpd ?? ''}</td>
         <td>${r.status_rpd ?? ''}</td>
@@ -117,7 +121,9 @@ function renderTeachers(teachers) {
         <td>${r.workload_type ?? ''}</td>
         <td>${r.assessment_type ?? ''}</td>
       </tr>
-    `).join('');
+    `;
+  }).join('');
+
 
     detailRow.innerHTML = `
       <td colspan="7" style="padding: 0;">

@@ -22,6 +22,7 @@ if ($isAdmin) {
 ?>  
 
 <nav class="sidebar">
+  <img src="img/logo_itmo.png" alt="Логотип ИТМО" class="logo">
   <ul>
     <?php foreach ($menuItems as $menuPage => $data): ?>
       <li>

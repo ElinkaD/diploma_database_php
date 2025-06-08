@@ -161,24 +161,20 @@ function renderAcademicDifference(data) {
 
                 if (field.includes('teachers')) {
                   if (Array.isArray(value) && value.length > 0) {
-                    const validTeachers = value.filter(t => t && t.id_isu && t.fio);
+                    const validTeachers = value.filter(t => t?.id_isu && t?.fio);
+                    console.log(field);
                     if (validTeachers.length > 0) {
                       return `<td>
                         <ul class="teachers-list">
                           ${validTeachers.map(t => `
-                            <li>
-                              <a href="?page=Teacher&id_isu=${encodeURIComponent(t.id_isu)}&fio=${encodeURIComponent(t.fio)}"
-                                class="teacher-link clickable" data-id="${t.id_isu}" data-fio="${t.fio}">
-                                ${t.fio}
-                              </a>
-                            </li>`).join('')}
+                            <span class='teacher-link clickable' data-id="${t.id_isu}" data-fio="${t.fio}">${t.fio}</span>
+                          `).join('')}
                         </ul>
                       </td>`;
                     }
                   }
                   return '<td>—</td>';
                 }
-
                 if (field === 'has_debt') {
                   return `<td>${value ? 'Да' : 'Нет'}</td>`;
                 }
@@ -191,15 +187,23 @@ function renderAcademicDifference(data) {
 
     section.appendChild(table);
     akademList.appendChild(section);
+
+    akademList.querySelectorAll('.teacher-link').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.id;
+        const fio = el.dataset.fio;
+        window.location.href = `?page=Teacher&id_isu=${encodeURIComponent(id)}&fio=${encodeURIComponent(fio)}`;
+      });
+    });
   };
 
   // 1. Перезачет
   if (data.transferable?.length) {
     createTable(
       'Дисциплины для перезачета',
-      ['Название', 'id rpd', 'Реализатор', 'З.Е.', 'Форма контроля', 'Семестр'],
+      ['id rpd', 'Название', 'Реализатор', 'З.Е.', 'Форма контроля', 'Семестр'],
       data.transferable,
-      ['discipline_name', 'id_rpd', 'implementer', 'credits', 'assessment_type', 'semester_number']
+      ['id_rpd', 'discipline_name', 'implementer', 'credits', 'assessment_type', 'semester_number']
     );
   }
 
@@ -207,9 +211,9 @@ function renderAcademicDifference(data) {
   if (data.negotiable?.length) {
     createTable(
       'Дисциплины для согласования',
-      ['Название', 'id rpd', 'Старые З.Е.', 'Новые З.Е.', 'Старая форма', 'Новая форма', 'Текущий реализатор', 'Новый реализатор', 'Преподаватели', 'Семестр'],
+      ['id rpd', 'Название', 'Текущий реализатор', 'Новый реализатор', 'Старые З.Е.', 'Новые З.Е.', 'Старая форма', 'Новая форма', 'Преподаватели', 'Семестр'],
       data.negotiable,
-      ['discipline_name', 'id_rpd', 'current_credits', 'new_credits', 'current_assessment_type', 'new_assessment_type', 'current_implementer', 'new_implementer', 'new_teachers', 'semester_number']
+      ['id_rpd', 'discipline_name', 'current_implementer', 'new_implementer', 'current_credits', 'new_credits', 'current_assessment_type', 'new_assessment_type', 'teachers', 'semester_number']
     );
   }
 
@@ -217,9 +221,9 @@ function renderAcademicDifference(data) {
   if (data.new_disciplines?.length) {
     createTable(
       'Дисциплины для сдачи',
-      ['Название', 'id rpd', 'З.Е.', 'Форма контроля', 'Реализатор', 'Преподаватели', 'Есть долг'],
+      ['id rpd', 'Название', 'Реализатор', 'З.Е.', 'Форма контроля', 'Преподаватели', 'Есть долг'],
       data.new_disciplines,
-      ['discipline_name', 'id_rpd', 'credits', 'assessment_type', 'implementer', 'teachers', 'has_debt']
+      ['id_rpd', 'discipline_name', 'implementer', 'credits', 'assessment_type', 'teachers', 'has_debt']
     );
   }
 }
