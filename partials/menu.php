@@ -7,7 +7,7 @@ $menuItems = [
     'StudentsList' => ['label' => 'Студенты', 'icon' => 'users.svg'],
     'TeachersList' => ['label' => 'Преподаватели', 'icon' => 'lecture.svg'],
     'Akadem' => ['label' => 'Академ', 'icon' => 'pencil-ruler.svg'],
-    'other' => ['label' => 'Другое', 'icon' => 'menu-services.svg'],
+    // 'other' => ['label' => 'Другое', 'icon' => 'menu-services.svg'],
   ];
 
 $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';

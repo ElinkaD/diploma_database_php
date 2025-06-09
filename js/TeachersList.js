@@ -117,6 +117,7 @@ function renderTeachers(teachers) {
         <td>${r.semester ?? ''}</td>
         <td>${r.year ?? ''}</td>
         <td>${r.count_hours ?? ''}</td>
+        <td>${r.count_student ?? ''}</td>
         <td>${r.comment ?? ''}</td>
         <td>${r.workload_type ?? ''}</td>
         <td>${r.assessment_type ?? ''}</td>
@@ -138,6 +139,7 @@ function renderTeachers(teachers) {
                   <th>Семестр</th>
                   <th>Год</th>
                   <th>Часы</th>
+                  <th>Количество студентов</th>
                   <th>Комментарий</th>
                   <th>Тип нагрузки</th>
                   <th>Тип контроля</th>

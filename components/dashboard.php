@@ -49,7 +49,7 @@ if (!isset($_SESSION['token'])):
     <p><strong>Направление подготовки:</strong> Компьютерные технологии в&nbsp;дизайне</p>
 
     <p>Ссылка на&nbsp;первую часть проекта, посвящённую учебным планам:<br>
-        <a href="https://se.ifmo.ru/~s335141/dev/frontend/dist" target="_blank">https://se.ifmo.ru/~s335141/dev/frontend/dist</a>
+        <a href="https://se.ifmo.ru/~s335141/dev/frontend/dist" target="_blank">https://se.ifmo.ru/~s335141/frontend/</a>
     </p>
 
     <p><a href="https://t.me/linaroon" target="_blank">Связаться с&nbsp;автором</a></p>

@@ -260,6 +260,8 @@ function renderWorkload(workloadList) {
     detailRow.style.display = 'none';
 
     const rpdList = (r.workloads ?? []).map(w => {
+      const isSpring = w.semester?.toLowerCase() === 'весна';
+      const semesterClass = isSpring ? 'spring-semester' : '';
       const flowsHtml = Array.isArray(w.flows)
       ? w.flows.map(f =>
           `<span class="clickable flow-span" data-id="${f.id}" data-name="${f.name}" style="font-weight:600; margin-right: 8px; cursor:pointer;">${f.name}</span>`
@@ -268,11 +270,12 @@ function renderWorkload(workloadList) {
         ? `<span class="clickable flow-span" data-id="${w.flows.id}" data-name="${w.flows.name}" style="font-weight:600; cursor:pointer;">${w.flows.name}</span>`
         : '';
       return `
-        <tr>
+        <tr class="${semesterClass}">
           <td>${w.discipline ?? ''}</td>
           <td>${w.year ?? ''}</td>
           <td>${w.semester ?? ''}</td>
           <td>${w.count_hours ?? ''}</td>
+          <td>${w.count_student ?? ''}</td>
           <td>${w.workload_type ?? ''}</td>
           <td>${w.assessment_types ?? ''}</td>
           <td>${w.comment ?? ''}</td>
@@ -292,6 +295,7 @@ function renderWorkload(workloadList) {
                   <th>Год</th>
                   <th>Семестр</th>
                   <th>Часы</th>
+                  <th>Количество студентов</th>
                   <th>Тип нагрузки</th>
                   <th>Тип контроля</th>
                   <th>Комментарий</th>
